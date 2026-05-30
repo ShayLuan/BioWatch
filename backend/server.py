@@ -6,7 +6,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+import asyncio
 import json
+import random
 import httpx
 from datetime import datetime
 from typing import Dict, List
@@ -113,6 +115,50 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
+# ── Virtual sensor simulation (mirrors SEED + step() from mockBackend.js) ─────
+EMIT_INTERVAL = 1.5   # seconds between ticks
+INJECT_TICKS  = 2     # how many ticks a contamination pulse lasts
+
+_virtual_sensors = [
+    {"id": "S-01", "baseTemp": 27.2, "baseTurb": 1.1},
+    {"id": "S-02", "baseTemp": 22.8, "baseTurb": 0.9},
+    {"id": "S-03", "baseTemp": 28.4, "baseTurb": 2.0},
+    {"id": "S-04", "baseTemp": 29.1, "baseTurb": 2.4},
+]
+_sim_state: Dict[str, dict] = {
+    s["id"]: {"baseTemp": s["baseTemp"], "baseTurb": s["baseTurb"], "inject": 0}
+    for s in _virtual_sensors
+}
+
+async def simulation_loop():
+    """Emit mock readings for every sensor that has no real device connected."""
+    while True:
+        await asyncio.sleep(EMIT_INTERVAL)
+        if not dashboard_manager.connections:
+            continue
+        now_ms = int(time.time() * 1000)
+        for s in _virtual_sensors:
+            sid = s["id"]
+            if sid in manager.active_connections:
+                continue   # real device is live — skip virtual
+            ss = _sim_state[sid]
+            temp = ss["baseTemp"] + (random.random() - 0.5) * 0.6
+            if ss["inject"] > 0:
+                temp += 1.8
+            temp = max(15.0, min(40.0, temp))
+            t = ss["baseTurb"] + random.random() * 0.7
+            if ss["inject"] > 0:
+                t += 6 + random.random() * 3
+                ss["inject"] -= 1
+            elif random.random() < 0.012:
+                t += 3 + random.random() * 2
+            turb = max(0.0, t)
+            await process_reading(sid, temp, turb, now_ms)
+
+@app.on_event("startup")
+async def startup():
+    asyncio.create_task(simulation_loop())
+
 ML_ENDPOINT = "http://localhost:8001/predict"
 
 async def send_to_ml_endpoint(sensor_data: dict) -> dict:
@@ -188,6 +234,8 @@ async def dashboard_websocket(websocket: WebSocket):
                 device_id = msg.get("sensorId")
                 if device_id in manager.active_connections:
                     await manager.active_connections[device_id].send_json({"cmd": "inject"})
+                elif device_id in _sim_state:
+                    _sim_state[device_id]["inject"] = INJECT_TICKS
     except WebSocketDisconnect:
         dashboard_manager.disconnect(websocket)
     except Exception as e:
