@@ -225,6 +225,7 @@ async def process_reading(device_id: str, temp: float, turb: float, ts_ms: int):
             "windowHours":  WINDOW_HOURS,
         })
 
+<<<<<<< HEAD
 # ── Derived feature computation from rolling buffer ──────────────────────────
 def compute_features(device_id: str, temp: float, turb: float, ts_ms: int) -> dict:
     """
@@ -254,6 +255,57 @@ def compute_features(device_id: str, temp: float, turb: float, ts_ms: int) -> di
         "Flow_CFS":                 0.0,
         "Flow_Delta_24h":           0.0,
     }
+=======
+# ── Bare /ws — accepts device_id via query param or first message ─────────────
+# Starlette 1.x does not route WebSocket upgrades at the root path "/".
+# Use  ws://host:8000/ws?device_id=sink_01  or send device_id in first JSON.
+@app.websocket("/ws")
+async def root_websocket_endpoint(websocket: WebSocket, device_id: str = ""):
+    await websocket.accept()
+
+    pending: dict | None = None
+    if not device_id:
+        try:
+            raw = await websocket.receive_text()
+            pending = json.loads(raw)
+            device_id = pending.get("device_id", "")
+        except Exception:
+            await websocket.close(code=1008, reason="First message must be JSON with device_id")
+            return
+        if not device_id:
+            await websocket.close(code=1008, reason="device_id required in query param or payload")
+            return
+
+    manager.active_connections[device_id] = websocket
+    manager.data_buffer.setdefault(device_id, [])
+    logger.info(f"Device {device_id} connected via root WS")
+
+    async def _process(sensor_data: dict):
+        temp  = float(sensor_data.get("temp_c",        sensor_data.get("temp", 0)))
+        turb  = float(sensor_data.get("turbidity_ntu", sensor_data.get("turbidity", sensor_data.get("turb", 0))))
+        ts_ms = int(sensor_data.get("ts", time.time() * 1000))
+        manager.data_buffer[device_id].append({"ts": ts_ms, "temp": temp, "turbidity": turb})
+        historical = manager.data_buffer[device_id][-100:]
+        risk = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
+        await process_reading(device_id, temp, turb, ts_ms)
+        await websocket.send_json({
+            "device_id":   device_id,
+            "received_at": datetime.now().isoformat(),
+            "sensor_data": sensor_data,
+            "risk":        risk,
+        })
+
+    try:
+        if pending is not None:
+            await _process(pending)
+        while True:
+            await _process(json.loads(await websocket.receive_text()))
+    except WebSocketDisconnect:
+        await manager.disconnect(device_id)
+    except Exception as e:
+        logger.error(f"Root WS error for {device_id}: {e}")
+        await manager.disconnect(device_id)
+>>>>>>> dc65773a560de4a4f283a7f138c87c1db1bdbbc2
 
 # ── Gap 1 — Dashboard WebSocket endpoint ─────────────────────────────────────
 @app.websocket("/ws/dashboard")
@@ -286,9 +338,9 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             sensor_data = json.loads(data)
             logger.info(f"Device {device_id}: {sensor_data}")
 
-            # Normalise field names — ESP32 may send "turb" or "turbidity"
-            temp = float(sensor_data.get("temp", 0))
-            turb = float(sensor_data.get("turbidity", sensor_data.get("turb", 0)))
+            # Normalise field names — Pi/ESP may send temp_c/turbidity_ntu or temp/turbidity/turb
+            temp = float(sensor_data.get("temp_c", sensor_data.get("temp", 0)))
+            turb = float(sensor_data.get("turbidity_ntu", sensor_data.get("turbidity", sensor_data.get("turb", 0))))
             ts_ms = int(sensor_data.get("ts", time.time() * 1000))
 
             # Store normalised reading for historical window passed to risk engine
@@ -324,6 +376,10 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
         await manager.disconnect(device_id)
 
 # ── HTTP endpoints ────────────────────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.get("/api/health")
 async def health_check():
     return {
