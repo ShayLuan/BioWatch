@@ -34,3 +34,9 @@ for i, label in enumerate(classes):
 # Save the explicitly non-zero features list for the next file
 pd.Series(features_to_keep).to_csv("lasso_surviving_features.csv", index=False, header=False)
 print(f"\nFeatures that survived LASSO pruning: {features_to_keep}")
+
+# Persist trained model so ml_service.py can load it at inference time
+import joblib, os
+_here = os.path.dirname(os.path.abspath(__file__))
+joblib.dump(lasso, os.path.join(_here, "lasso_model.pkl"))
+print("Saved lasso_model.pkl")
