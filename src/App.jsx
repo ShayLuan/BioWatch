@@ -5,7 +5,6 @@ import {
 } from "lucide-react";
 import { CONFIG, TIERS } from "./config";
 import { SEED, NOW0, H, genHist } from "./seed";
-import { createMockBackend } from "./mockBackend";
 import { CSS } from "./styles";
 import Sparkline from "./components/Sparkline";
 import StatTile from "./components/StatTile";
@@ -62,10 +61,12 @@ export default function WaterSentinelDashboard() {
   }
 
   useEffect(() => {
-    const b = createMockBackend(handleMessage);
-    backend.current = b; b.start();
+    const ws = new WebSocket("ws://localhost:8000/ws/dashboard");
+    ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
+    ws.onerror   = (e) => console.error("[BioWatch] WebSocket error", e);
+    backend.current = { inject: (sensorId) => ws.send(JSON.stringify({ cmd: "inject", sensorId })) };
     const c = setInterval(() => setClock(Date.now()), 1000);
-    return () => { b.stop(); clearInterval(c); };
+    return () => { ws.close(); clearInterval(c); };
   }, []);
 
   const sel = sensors[selected];
@@ -89,7 +90,7 @@ export default function WaterSentinelDashboard() {
           </div>
         </div>
         <div className="live-pill">
-          <Radio size={13} className="pulse" /> Live · <span className="muted">mock feed</span>
+          <Radio size={13} className="pulse" /> Live · <span className="muted">ws://localhost:8000</span>
           <span className="live-clock">{new Date(clock).toLocaleTimeString()}</span>
         </div>
       </header>

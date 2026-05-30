@@ -1,45 +1,108 @@
 # server.py
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import asyncio
 import json
 import httpx
 from datetime import datetime
 from typing import Dict, List
 import logging
+import time
+
+from calculate_real_time_risk import AMRRiskEngine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Sensor Data Backend")
+app = FastAPI(title="BioWatch Sensor Backend")
 
-# Store active WebSocket connections
+# Gap 3 — CORS: allow the Vite dev server to open WebSocket + HTTP connections
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:4173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── Risk engine ───────────────────────────────────────────────────────────────
+risk_engine = AMRRiskEngine()
+
+# ── Gap 2 — Flag / tier thresholds: kept in sync with src/config.js ──────────
+TURB_FLAG_NTU    = 4.5
+WARM_TEMP_C      = 26.0
+WINDOW_HOURS     = 6
+FLAG_DEBOUNCE_MS = 1200
+TIER_WATCH       = 1
+TIER_ELEVATED    = 4
+TIER_CRITICAL    = 6
+
+def tier_from_count(n: int) -> str:
+    if n >= TIER_CRITICAL:  return "critical"
+    if n >= TIER_ELEVATED:  return "elevated"
+    if n >= TIER_WATCH:     return "watch"
+    return "normal"
+
+# ── Per-device sliding-window state ──────────────────────────────────────────
+_device_state: Dict[str, dict] = {}
+
+def _get_state(device_id: str) -> dict:
+    if device_id not in _device_state:
+        _device_state[device_id] = {
+            "flags": [],        # list of {ts, temp, turbidity}
+            "last_flag_at": 0,  # ms epoch
+            "last_tier": None,
+            "last_count": -1,
+        }
+    return _device_state[device_id]
+
+# Dashboard WebSocket manager
+class DashboardManager:
+    def __init__(self):
+        self.connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.connections:
+            self.connections.remove(websocket)
+
+    async def broadcast(self, message: dict):
+        dead = []
+        for ws in self.connections:
+            try:
+                await ws.send_json(message)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            self.connections.remove(ws)
+
+dashboard_manager = DashboardManager()
+
+# Device WebSocket manager
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {}
         self.data_buffer: Dict[str, List] = {}
-    
+
     async def connect(self, device_id: str, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[device_id] = websocket
         self.data_buffer[device_id] = []
         logger.info(f"Device {device_id} connected")
-    
+
     async def disconnect(self, device_id: str):
         if device_id in self.active_connections:
             del self.active_connections[device_id]
         logger.info(f"Device {device_id} disconnected")
-    
-    async def broadcast(self, message: dict):
-        """Send message to all connected devices"""
-        for device_id, connection in self.active_connections.items():
-            try:
-                await connection.send_json(message)
-            except Exception as e:
-                logger.error(f"Error broadcasting to {device_id}: {e}")
-    
+
     def get_device_status(self):
-        """Return status of all connected devices"""
         return {
             device_id: {
                 "connected": True,
@@ -50,26 +113,12 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-# ML Endpoint configuration
-# TODO: Update with ML service URL
 ML_ENDPOINT = "http://localhost:8001/predict"
 
 async def send_to_ml_endpoint(sensor_data: dict) -> dict:
-    """
-    Send sensor data to ML endpoint and get prediction
-    
-    Args:
-        sensor_data: Dictionary containing sensor readings
-    
-    Returns:
-        ML prediction response
-    """
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(
-                ML_ENDPOINT,
-                json=sensor_data
-            )
+            response = await client.post(ML_ENDPOINT, json=sensor_data)
             response.raise_for_status()
             return response.json()
     except httpx.RequestError as e:
@@ -79,43 +128,106 @@ async def send_to_ml_endpoint(sensor_data: dict) -> dict:
         logger.error(f"Unexpected ML endpoint error: {e}")
         return {"error": str(e), "prediction": None}
 
-@app.websocket("/ws/{device_id}")
-async def websocket_endpoint(websocket: WebSocket, device_id: str):
+# Core processing — runs on every device reading
+async def process_reading(device_id: str, temp: float, turb: float, ts_ms: int):
     """
-    WebSocket endpoint for receiving sensor data from devices
-    
-    Args:
-        websocket: WebSocket connection
-        device_id: Unique identifier for the sensor device
+    Gap 2: Applies the flag/tier logic from mockBackend.js on the server side,
+    then broadcasts the three message types the React dashboard expects.
     """
-    await manager.connect(device_id, websocket)
-    
+    state = _get_state(device_id)
+
+    # 1. reading → dashboard
+    await dashboard_manager.broadcast({
+        "type":      "reading",
+        "ts":        ts_ms,
+        "sensorId":  device_id,
+        "temp":      temp,
+        "turbidity": turb,
+    })
+
+    # 2. flag detection — same rule + debounce as mockBackend.js
+    if (turb >= TURB_FLAG_NTU and temp >= WARM_TEMP_C and
+            ts_ms - state["last_flag_at"] >= FLAG_DEBOUNCE_MS):
+        state["last_flag_at"] = ts_ms
+        state["flags"].append({"ts": ts_ms, "temp": temp, "turbidity": turb})
+        await dashboard_manager.broadcast({
+            "type":      "flag",
+            "ts":        ts_ms,
+            "sensorId":  device_id,
+            "temp":      temp,
+            "turbidity": turb,
+        })
+
+    # 3. sliding-window tier (prune expired flags, then escalate)
+    cutoff = ts_ms - WINDOW_HOURS * 3_600_000
+    state["flags"] = [f for f in state["flags"] if f["ts"] >= cutoff]
+    count = len(state["flags"])
+    tier  = tier_from_count(count)
+
+    if tier != state["last_tier"] or count != state["last_count"]:
+        state["last_tier"]  = tier
+        state["last_count"] = count
+        await dashboard_manager.broadcast({
+            "type":         "status",
+            "sensorId":     device_id,
+            "tier":         tier,
+            "flagsInWindow": count,
+            "windowHours":  WINDOW_HOURS,
+        })
+
+# ── Gap 1 — Dashboard WebSocket endpoint ─────────────────────────────────────
+@app.websocket("/ws/dashboard")
+async def dashboard_websocket(websocket: WebSocket):
+    await dashboard_manager.connect(websocket)
     try:
         while True:
-            # Receive sensor data from device
-            data = await websocket.receive_text()
+            raw = await websocket.receive_text()
+            msg = json.loads(raw)
+            # Inject command: forward to the target device if it is connected
+            if msg.get("cmd") == "inject":
+                device_id = msg.get("sensorId")
+                if device_id in manager.active_connections:
+                    await manager.active_connections[device_id].send_json({"cmd": "inject"})
+    except WebSocketDisconnect:
+        dashboard_manager.disconnect(websocket)
+    except Exception as e:
+        logger.error(f"Dashboard WS error: {e}")
+        dashboard_manager.disconnect(websocket)
+
+# ── Device WebSocket endpoint ─────────────────────────────────────────────────
+@app.websocket("/ws/{device_id}")
+async def websocket_endpoint(websocket: WebSocket, device_id: str):
+    await manager.connect(device_id, websocket)
+    try:
+        while True:
+            data        = await websocket.receive_text()
             sensor_data = json.loads(data)
-            
             logger.info(f"Device {device_id}: {sensor_data}")
-            
-            # Store in buffer
-            manager.data_buffer[device_id].append(sensor_data)
-            
-            # Send to ML endpoint
-            ml_result = await send_to_ml_endpoint(sensor_data)
-            
-            # Enrich response with ML prediction
-            response = {
-                "device_id": device_id,
+
+            # Normalise field names — ESP32 may send "turb" or "turbidity"
+            temp = float(sensor_data.get("temp", 0))
+            turb = float(sensor_data.get("turbidity", sensor_data.get("turb", 0)))
+            ts_ms = int(sensor_data.get("ts", time.time() * 1000))
+
+            # Store normalised reading for historical window passed to risk engine
+            normalised = {"ts": ts_ms, "temp": temp, "turbidity": turb}
+            manager.data_buffer[device_id].append(normalised)
+
+            # AMR risk score (returned to the ESP32; also available for logging)
+            historical = manager.data_buffer[device_id][-100:]
+            risk = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
+
+            # Broadcast the three UI message types to all dashboard clients
+            await process_reading(device_id, temp, turb, ts_ms)
+
+            # Enriched acknowledgement back to the ESP32
+            await websocket.send_json({
+                "device_id":   device_id,
                 "received_at": datetime.now().isoformat(),
                 "sensor_data": sensor_data,
-                "ml_prediction": ml_result
-            }
-            
-            # Send prediction back to device
-            await websocket.send_json(response)
-            logger.info(f"Sent prediction to {device_id}: {response}")
-            
+                "risk":        risk,
+            })
+
     except WebSocketDisconnect:
         await manager.disconnect(device_id)
     except json.JSONDecodeError as e:
@@ -125,41 +237,29 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
         logger.error(f"Unexpected error for {device_id}: {e}")
         await manager.disconnect(device_id)
 
+# ── HTTP endpoints ────────────────────────────────────────────────────────────
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint"""
     return {
-        "status": "healthy",
+        "status":            "healthy",
         "connected_devices": len(manager.active_connections),
-        "devices": manager.get_device_status()
+        "dashboard_clients": len(dashboard_manager.connections),
+        "devices":           manager.get_device_status(),
     }
 
 @app.get("/api/device/{device_id}/history")
 async def get_device_history(device_id: str, limit: int = 100):
-    """Get stored data from a device"""
     if device_id not in manager.data_buffer:
-        return JSONResponse(
-            status_code=404,
-            content={"error": f"Device {device_id} not found"}
-        )
-    
+        return JSONResponse(status_code=404, content={"error": f"Device {device_id} not found"})
     data = manager.data_buffer[device_id][-limit:]
-    return {
-        "device_id": device_id,
-        "record_count": len(data),
-        "data": data
-    }
+    return {"device_id": device_id, "record_count": len(data), "data": data}
 
 @app.delete("/api/device/{device_id}/history")
 async def clear_device_history(device_id: str):
-    """Clear stored data for a device"""
     if device_id in manager.data_buffer:
         manager.data_buffer[device_id] = []
         return {"message": f"History cleared for {device_id}"}
-    return JSONResponse(
-        status_code=404,
-        content={"error": f"Device {device_id} not found"}
-    )
+    return JSONResponse(status_code=404, content={"error": f"Device {device_id} not found"})
 
 if __name__ == "__main__":
     import uvicorn
