@@ -1,0 +1,3 @@
+python -m pip install "fastapi[standard]"
+python server.py  # Runs on port 8000
+# python ml_service.py       # Runs on port 8001
