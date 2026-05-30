@@ -85,7 +85,7 @@ export default function WaterSentinelDashboard() {
         <div className="brand">
           <span className="brand-mark"><Waves size={22} /></span>
           <div>
-            <div className="brand-name">Water<b>Sentinel</b></div>
+            <div className="brand-name">Bio<b>Watch</b></div>
             <div className="brand-sub">Sink-trap bacterial-risk monitoring · {CONFIG.MONITOR_HOURS} h incubation watch</div>
           </div>
         </div>
