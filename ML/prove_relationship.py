@@ -1,19 +1,22 @@
+import os
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
 # 1. Load your compiled data matrix
-df = pd.read_csv("final_training_set.csv")
+df = pd.read_csv(os.path.join(_HERE, "final_training_set.csv"))
 
 print("=========================================================")
 print("  MATHEMATICAL PROOF: ENVIRONMENTAL DRIVERS OF AMR RISK  ")
 print("=========================================================\n")
 
-# --- FIX 1: Explicitly map your text classes to numbers ---
-risk_mapping = {"Low": 0, "Medium": 1, "High": 2}
+# Map string class labels to ordinal numbers for correlation analysis
+risk_mapping = {"Low Risk": 0, "Medium Risk": 1, "High Risk": 2}
 df["AMR_Risk_Numeric"] = df["AMR_Risk_Class"].map(risk_mapping)
 
-# If it's already numeric, fall back safely
+# If column is already numeric (legacy CSVs), fall back safely
 if df["AMR_Risk_Numeric"].isna().all():
     df["AMR_Risk_Numeric"] = df["AMR_Risk_Class"].astype(float)
 

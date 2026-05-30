@@ -1,9 +1,12 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
 # 1. Load Matrix
-df = pd.read_csv("final_training_set.csv")
+df = pd.read_csv(os.path.join(_HERE, "final_training_set.csv"))
 X = df[['Temperature_C', 'Turbidity_Max_48h', 'Flow_CFS', 'Temp_Rolling_Mean_48h']]
 y = df['AMR_Risk_Class']
 
@@ -22,5 +25,5 @@ plot_tree(
     fontsize=10
 )
 plt.title("Environmental Tipping Points Driving AMR Risk Tiers", fontsize=14, fontweight='bold')
-plt.savefig("environmental_proof_tree.png", bbox_inches='tight')
+plt.savefig(os.path.join(_HERE, "environmental_proof_tree.png"), bbox_inches='tight')
 print("\nSuccess! Saved explicit decision flow logic to 'environmental_proof_tree.png'")
