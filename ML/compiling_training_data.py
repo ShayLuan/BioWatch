@@ -1,8 +1,11 @@
+import os
 import pandas as pd
 import numpy as np
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
 # 1. Load your engineered predictor features (X)
-df_features = pd.read_csv("engineered_features.csv")
+df_features = pd.read_csv(os.path.join(_HERE, "engineered_features.csv"))
 df_features['Timestamp'] = pd.to_datetime(df_features['Timestamp'])
 
 # 2. Extract a 'Date' string for straightforward daily grouping if needed
@@ -45,16 +48,16 @@ upper_threshold = df_targets['Target_Gene_Abundance'].quantile(0.85)
 # Define a function to map the abundance values into three distinct classes
 def assign_risk_class(abundance):
     if abundance < lower_threshold:
-        return 0  # Low Risk
+        return "Low Risk"
     elif lower_threshold <= abundance < upper_threshold:
-        return 1  # Medium Risk
+        return "Medium Risk"
     else:
-        return 2  # High Risk
+        return "High Risk"
 
 # Apply the mapping function to create your new target column
 df_targets['AMR_Risk_Class'] = df_targets['Target_Gene_Abundance'].apply(assign_risk_class)
 
-print(f"Thresholds established: Low < {lower_threshold:.2f} | Medium up to {upper_threshold:.2f} | High >= {upper_threshold:.2f}")
+print(f"Thresholds: Low Risk < {lower_threshold:.2f} | Medium Risk up to {upper_threshold:.2f} | High Risk >= {upper_threshold:.2f}")
 # 5. Execute the Final Matrix Join
 df_daily_features['Date'] = pd.to_datetime(df_daily_features['Date']).dt.date
 df_targets['Date'] = pd.to_datetime(df_targets['Date']).dt.date
@@ -66,5 +69,5 @@ print(f"Total labeled samples available for training: {len(df_train)}")
 print(f"Class Balance: {df_train['AMR_Risk_Class'].value_counts().to_dict()} (0: Low Risk, 1: High Risk)")
 
 # Save the final training file
-df_train.to_csv("final_training_set.csv", index=False)
+df_train.to_csv(os.path.join(_HERE, "final_training_set.csv"), index=False)
 print("\nExported training-ready matrix to 'final_training_set.csv'")

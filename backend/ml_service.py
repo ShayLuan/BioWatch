@@ -96,7 +96,7 @@ def predict(payload: SensorFeatures) -> dict:
     # ── LASSO inference path ──────────────────────────────────────────────────
     # Select and order only the features the model was trained on
     X = pd.DataFrame([{f: feat.get(f, 0.0) for f in _features}])
-    X_scaled = _scaler.transform(X)
+    X_scaled = pd.DataFrame(_scaler.transform(X), columns=_features)
 
     pred_class = _model.predict(X_scaled)[0]
     proba      = _model.predict_proba(X_scaled)[0]

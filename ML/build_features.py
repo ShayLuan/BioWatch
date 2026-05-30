@@ -1,8 +1,11 @@
+import os
 import pandas as pd
 import numpy as np
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
 # 1. Load the pristine time-series data
-df = pd.read_csv("sensor_activity.csv")
+df = pd.read_csv(os.path.join(_HERE, "sensor_activity.csv"))
 df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 df = df.sort_values('Timestamp').reset_index(drop=True)
 
@@ -35,5 +38,5 @@ print(f"Features engineered successfully! Matrix shape: {df_features.shape}")
 print(df_features[['Timestamp', 'Turbidity_Delta_24h', 'Temp_Rolling_Mean_48h', 'Temp_Turbidity_Interaction']].head())
 
 # Save your complete feature matrix X
-df_features.to_csv("engineered_features.csv", index=False)
+df_features.to_csv(os.path.join(_HERE, "engineered_features.csv"), index=False)
 print("\nFeature matrix exported to 'engineered_features.csv'")
