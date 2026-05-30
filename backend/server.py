@@ -225,7 +225,7 @@ async def process_reading(device_id: str, temp: float, turb: float, ts_ms: int):
             "windowHours":  WINDOW_HOURS,
         })
 
-<<<<<<< HEAD
+# TODO: confirm function
 # ── Derived feature computation from rolling buffer ──────────────────────────
 def compute_features(device_id: str, temp: float, turb: float, ts_ms: int) -> dict:
     """
@@ -255,7 +255,8 @@ def compute_features(device_id: str, temp: float, turb: float, ts_ms: int) -> di
         "Flow_CFS":                 0.0,
         "Flow_Delta_24h":           0.0,
     }
-=======
+
+# TODO: confirm function
 # ── Bare /ws — accepts device_id via query param or first message ─────────────
 # Starlette 1.x does not route WebSocket upgrades at the root path "/".
 # Use  ws://host:8000/ws?device_id=sink_01  or send device_id in first JSON.
@@ -305,8 +306,8 @@ async def root_websocket_endpoint(websocket: WebSocket, device_id: str = ""):
     except Exception as e:
         logger.error(f"Root WS error for {device_id}: {e}")
         await manager.disconnect(device_id)
->>>>>>> dc65773a560de4a4f283a7f138c87c1db1bdbbc2
 
+# TODO: confirm function
 # ── Gap 1 — Dashboard WebSocket endpoint ─────────────────────────────────────
 @app.websocket("/ws/dashboard")
 async def dashboard_websocket(websocket: WebSocket):
