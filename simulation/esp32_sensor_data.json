@@ -1,0 +1,502 @@
+[
+  {
+    "timestamp": "2026-05-30T17:12:15.997747",
+    "temperature_c": 16.65,
+    "turbidity_ntu": 374.88
+  },
+  {
+    "timestamp": "2026-05-30T17:12:20.997747",
+    "temperature_c": 16.27,
+    "turbidity_ntu": 360.81
+  },
+  {
+    "timestamp": "2026-05-30T17:12:25.997747",
+    "temperature_c": 15.95,
+    "turbidity_ntu": 370.31
+  },
+  {
+    "timestamp": "2026-05-30T17:12:30.997747",
+    "temperature_c": 16.3,
+    "turbidity_ntu": 387.72
+  },
+  {
+    "timestamp": "2026-05-30T17:12:35.997747",
+    "temperature_c": 16.3,
+    "turbidity_ntu": 379.37
+  },
+  {
+    "timestamp": "2026-05-30T17:12:40.997747",
+    "temperature_c": 16.09,
+    "turbidity_ntu": 360.95
+  },
+  {
+    "timestamp": "2026-05-30T17:12:45.997747",
+    "temperature_c": 15.84,
+    "turbidity_ntu": 371.94
+  },
+  {
+    "timestamp": "2026-05-30T17:12:50.997747",
+    "temperature_c": 16.24,
+    "turbidity_ntu": 369.74
+  },
+  {
+    "timestamp": "2026-05-30T17:12:55.997747",
+    "temperature_c": 16.16,
+    "turbidity_ntu": 352.34
+  },
+  {
+    "timestamp": "2026-05-30T17:13:00.997747",
+    "temperature_c": 15.68,
+    "turbidity_ntu": 333.69
+  },
+  {
+    "timestamp": "2026-05-30T17:13:05.997747",
+    "temperature_c": 15.91,
+    "turbidity_ntu": 341.21
+  },
+  {
+    "timestamp": "2026-05-30T17:13:10.997747",
+    "temperature_c": 16.28,
+    "turbidity_ntu": 330.76
+  },
+  {
+    "timestamp": "2026-05-30T17:13:15.997747",
+    "temperature_c": 16.7,
+    "turbidity_ntu": 316.53
+  },
+  {
+    "timestamp": "2026-05-30T17:13:20.997747",
+    "temperature_c": 17.01,
+    "turbidity_ntu": 313.11
+  },
+  {
+    "timestamp": "2026-05-30T17:13:25.997747",
+    "temperature_c": 16.91,
+    "turbidity_ntu": 307.14
+  },
+  {
+    "timestamp": "2026-05-30T17:13:30.997747",
+    "temperature_c": 16.77,
+    "turbidity_ntu": 326.48
+  },
+  {
+    "timestamp": "2026-05-30T17:13:35.997747",
+    "temperature_c": 16.58,
+    "turbidity_ntu": 336.87
+  },
+  {
+    "timestamp": "2026-05-30T17:13:40.997747",
+    "temperature_c": 16.74,
+    "turbidity_ntu": 340.79
+  },
+  {
+    "timestamp": "2026-05-30T17:13:45.997747",
+    "temperature_c": 16.99,
+    "turbidity_ntu": 347.28
+  },
+  {
+    "timestamp": "2026-05-30T17:13:50.997747",
+    "temperature_c": 16.58,
+    "turbidity_ntu": 366.05
+  },
+  {
+    "timestamp": "2026-05-30T17:13:55.997747",
+    "temperature_c": 16.85,
+    "turbidity_ntu": 350.78
+  },
+  {
+    "timestamp": "2026-05-30T17:14:00.997747",
+    "temperature_c": 17.22,
+    "turbidity_ntu": 344.5
+  },
+  {
+    "timestamp": "2026-05-30T17:14:05.997747",
+    "temperature_c": 17.27,
+    "turbidity_ntu": 331.96
+  },
+  {
+    "timestamp": "2026-05-30T17:14:10.997747",
+    "temperature_c": 16.82,
+    "turbidity_ntu": 340.8
+  },
+  {
+    "timestamp": "2026-05-30T17:14:15.997747",
+    "temperature_c": 16.36,
+    "turbidity_ntu": 321.65
+  },
+  {
+    "timestamp": "2026-05-30T17:14:20.997747",
+    "temperature_c": 16.76,
+    "turbidity_ntu": 325.07
+  },
+  {
+    "timestamp": "2026-05-30T17:14:25.997747",
+    "temperature_c": 16.89,
+    "turbidity_ntu": 306.27
+  },
+  {
+    "timestamp": "2026-05-30T17:14:30.997747",
+    "temperature_c": 17.13,
+    "turbidity_ntu": 322.56
+  },
+  {
+    "timestamp": "2026-05-30T17:14:35.997747",
+    "temperature_c": 16.99,
+    "turbidity_ntu": 329.78
+  },
+  {
+    "timestamp": "2026-05-30T17:14:40.997747",
+    "temperature_c": 16.99,
+    "turbidity_ntu": 333.7
+  },
+  {
+    "timestamp": "2026-05-30T17:14:45.997747",
+    "temperature_c": 16.89,
+    "turbidity_ntu": 314.19
+  },
+  {
+    "timestamp": "2026-05-30T17:14:50.997747",
+    "temperature_c": 17.2,
+    "turbidity_ntu": 315.77
+  },
+  {
+    "timestamp": "2026-05-30T17:14:55.997747",
+    "temperature_c": 16.79,
+    "turbidity_ntu": 321.05
+  },
+  {
+    "timestamp": "2026-05-30T17:15:00.997747",
+    "temperature_c": 16.36,
+    "turbidity_ntu": 307.3
+  },
+  {
+    "timestamp": "2026-05-30T17:15:05.997747",
+    "temperature_c": 15.88,
+    "turbidity_ntu": 288.94
+  },
+  {
+    "timestamp": "2026-05-30T17:15:10.997747",
+    "temperature_c": 15.82,
+    "turbidity_ntu": 269.77
+  },
+  {
+    "timestamp": "2026-05-30T17:15:15.997747",
+    "temperature_c": 16.13,
+    "turbidity_ntu": 249.89
+  },
+  {
+    "timestamp": "2026-05-30T17:15:20.997747",
+    "temperature_c": 16.56,
+    "turbidity_ntu": 249.68
+  },
+  {
+    "timestamp": "2026-05-30T17:15:25.997747",
+    "temperature_c": 16.2,
+    "turbidity_ntu": 265.56
+  },
+  {
+    "timestamp": "2026-05-30T17:15:30.997747",
+    "temperature_c": 15.79,
+    "turbidity_ntu": 271.63
+  },
+  {
+    "timestamp": "2026-05-30T17:15:35.997747",
+    "temperature_c": 15.32,
+    "turbidity_ntu": 286.1
+  },
+  {
+    "timestamp": "2026-05-30T17:15:40.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 280.13
+  },
+  {
+    "timestamp": "2026-05-30T17:15:45.997747",
+    "temperature_c": 15.37,
+    "turbidity_ntu": 299.45
+  },
+  {
+    "timestamp": "2026-05-30T17:15:50.997747",
+    "temperature_c": 15.47,
+    "turbidity_ntu": 306.08
+  },
+  {
+    "timestamp": "2026-05-30T17:15:55.997747",
+    "temperature_c": 15.22,
+    "turbidity_ntu": 319.24
+  },
+  {
+    "timestamp": "2026-05-30T17:16:00.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 312.35
+  },
+  {
+    "timestamp": "2026-05-30T17:16:05.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 315.84
+  },
+  {
+    "timestamp": "2026-05-30T17:16:10.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 335.18
+  },
+  {
+    "timestamp": "2026-05-30T17:16:15.997747",
+    "temperature_c": 15.04,
+    "turbidity_ntu": 344.26
+  },
+  {
+    "timestamp": "2026-05-30T17:16:20.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 359.91
+  },
+  {
+    "timestamp": "2026-05-30T17:16:25.997747",
+    "temperature_c": 15.19,
+    "turbidity_ntu": 346.39
+  },
+  {
+    "timestamp": "2026-05-30T17:16:30.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 359.95
+  },
+  {
+    "timestamp": "2026-05-30T17:16:35.997747",
+    "temperature_c": 15.34,
+    "turbidity_ntu": 376.13
+  },
+  {
+    "timestamp": "2026-05-30T17:16:40.997747",
+    "temperature_c": 15.76,
+    "turbidity_ntu": 360.35
+  },
+  {
+    "timestamp": "2026-05-30T17:16:45.997747",
+    "temperature_c": 15.35,
+    "turbidity_ntu": 369.94
+  },
+  {
+    "timestamp": "2026-05-30T17:16:50.997747",
+    "temperature_c": 15.71,
+    "turbidity_ntu": 357.35
+  },
+  {
+    "timestamp": "2026-05-30T17:16:55.997747",
+    "temperature_c": 15.9,
+    "turbidity_ntu": 344.12
+  },
+  {
+    "timestamp": "2026-05-30T17:17:00.997747",
+    "temperature_c": 16.19,
+    "turbidity_ntu": 329.66
+  },
+  {
+    "timestamp": "2026-05-30T17:17:05.997747",
+    "temperature_c": 15.84,
+    "turbidity_ntu": 327.96
+  },
+  {
+    "timestamp": "2026-05-30T17:17:10.997747",
+    "temperature_c": 16.2,
+    "turbidity_ntu": 319.5
+  },
+  {
+    "timestamp": "2026-05-30T17:17:15.997747",
+    "temperature_c": 15.81,
+    "turbidity_ntu": 332.95
+  },
+  {
+    "timestamp": "2026-05-30T17:17:20.997747",
+    "temperature_c": 15.44,
+    "turbidity_ntu": 350.34
+  },
+  {
+    "timestamp": "2026-05-30T17:17:25.997747",
+    "temperature_c": 15.2,
+    "turbidity_ntu": 354.82
+  },
+  {
+    "timestamp": "2026-05-30T17:17:30.997747",
+    "temperature_c": 15.2,
+    "turbidity_ntu": 358.95
+  },
+  {
+    "timestamp": "2026-05-30T17:17:35.997747",
+    "temperature_c": 15.51,
+    "turbidity_ntu": 378.18
+  },
+  {
+    "timestamp": "2026-05-30T17:17:40.997747",
+    "temperature_c": 15.03,
+    "turbidity_ntu": 383.7
+  },
+  {
+    "timestamp": "2026-05-30T17:17:45.997747",
+    "temperature_c": 15.51,
+    "turbidity_ntu": 374.27
+  },
+  {
+    "timestamp": "2026-05-30T17:17:50.997747",
+    "temperature_c": 15.78,
+    "turbidity_ntu": 381.53
+  },
+  {
+    "timestamp": "2026-05-30T17:17:55.997747",
+    "temperature_c": 15.34,
+    "turbidity_ntu": 401.39
+  },
+  {
+    "timestamp": "2026-05-30T17:18:00.997747",
+    "temperature_c": 15.21,
+    "turbidity_ntu": 388.06
+  },
+  {
+    "timestamp": "2026-05-30T17:18:05.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 399.25
+  },
+  {
+    "timestamp": "2026-05-30T17:18:10.997747",
+    "temperature_c": 15.05,
+    "turbidity_ntu": 379.35
+  },
+  {
+    "timestamp": "2026-05-30T17:18:15.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 389.18
+  },
+  {
+    "timestamp": "2026-05-30T17:18:20.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 377.47
+  },
+  {
+    "timestamp": "2026-05-30T17:18:25.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 376.86
+  },
+  {
+    "timestamp": "2026-05-30T17:18:30.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 357.19
+  },
+  {
+    "timestamp": "2026-05-30T17:18:35.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 340.62
+  },
+  {
+    "timestamp": "2026-05-30T17:18:40.997747",
+    "temperature_c": 15.04,
+    "turbidity_ntu": 344.02
+  },
+  {
+    "timestamp": "2026-05-30T17:18:45.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 352.02
+  },
+  {
+    "timestamp": "2026-05-30T17:18:50.997747",
+    "temperature_c": 15.06,
+    "turbidity_ntu": 361.15
+  },
+  {
+    "timestamp": "2026-05-30T17:18:55.997747",
+    "temperature_c": 15.28,
+    "turbidity_ntu": 349.6
+  },
+  {
+    "timestamp": "2026-05-30T17:19:00.997747",
+    "temperature_c": 15.34,
+    "turbidity_ntu": 339.69
+  },
+  {
+    "timestamp": "2026-05-30T17:19:05.997747",
+    "temperature_c": 15.28,
+    "turbidity_ntu": 354.53
+  },
+  {
+    "timestamp": "2026-05-30T17:19:10.997747",
+    "temperature_c": 15.03,
+    "turbidity_ntu": 347.69
+  },
+  {
+    "timestamp": "2026-05-30T17:19:15.997747",
+    "temperature_c": 15.3,
+    "turbidity_ntu": 344.28
+  },
+  {
+    "timestamp": "2026-05-30T17:19:20.997747",
+    "temperature_c": 15.48,
+    "turbidity_ntu": 359.53
+  },
+  {
+    "timestamp": "2026-05-30T17:19:25.997747",
+    "temperature_c": 15.08,
+    "turbidity_ntu": 358.87
+  },
+  {
+    "timestamp": "2026-05-30T17:19:30.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 367.48
+  },
+  {
+    "timestamp": "2026-05-30T17:19:35.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 375.75
+  },
+  {
+    "timestamp": "2026-05-30T17:19:40.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 369.22
+  },
+  {
+    "timestamp": "2026-05-30T17:19:45.997747",
+    "temperature_c": 15.35,
+    "turbidity_ntu": 357.41
+  },
+  {
+    "timestamp": "2026-05-30T17:19:50.997747",
+    "temperature_c": 15.0,
+    "turbidity_ntu": 349.58
+  },
+  {
+    "timestamp": "2026-05-30T17:19:55.997747",
+    "temperature_c": 15.16,
+    "turbidity_ntu": 343.21
+  },
+  {
+    "timestamp": "2026-05-30T17:20:00.997747",
+    "temperature_c": 15.26,
+    "turbidity_ntu": 339.36
+  },
+  {
+    "timestamp": "2026-05-30T17:20:05.997747",
+    "temperature_c": 15.07,
+    "turbidity_ntu": 338.63
+  },
+  {
+    "timestamp": "2026-05-30T17:20:10.997747",
+    "temperature_c": 15.38,
+    "turbidity_ntu": 323.77
+  },
+  {
+    "timestamp": "2026-05-30T17:20:15.997747",
+    "temperature_c": 15.31,
+    "turbidity_ntu": 311.96
+  },
+  {
+    "timestamp": "2026-05-30T17:20:20.997747",
+    "temperature_c": 15.22,
+    "turbidity_ntu": 331.82
+  },
+  {
+    "timestamp": "2026-05-30T17:20:25.997747",
+    "temperature_c": 15.53,
+    "turbidity_ntu": 330.74
+  },
+  {
+    "timestamp": "2026-05-30T17:20:30.997747",
+    "temperature_c": 15.43,
+    "turbidity_ntu": 348.69
+  }
+]

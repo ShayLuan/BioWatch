@@ -1,9 +1,11 @@
 import csv
+import json
 from datetime import datetime, timedelta
 import random
 
 # Configuration
 CSV_FILENAME = "esp32_sensor_data.csv"
+JSON_FILENAME = "esp32_sensor_data.json"
 NUM_READINGS = 100
 INTERVAL_SECONDS = 5  # Time between readings
 
@@ -71,6 +73,20 @@ def save_to_csv(data, filename):
     except IOError as e:
         print(f"✗ Error writing to file: {e}")
 
+def save_to_json(data, filename):
+    """Save sensor data to JSON file."""
+    if not data:
+        print("No data to save.")
+        return
+    
+    try:
+        with open(filename, 'w') as jsonfile:
+            json.dump(data, jsonfile, indent=2)
+        
+        print(f"✓ Successfully saved {len(data)} readings to '{filename}'")
+    except IOError as e:
+        print(f"✗ Error writing to file: {e}")
+
 def main():
     """Main function."""
     print("Simulating ESP32 Sensor Data...")
@@ -87,6 +103,9 @@ def main():
     
     # Save to CSV
     save_to_csv(sensor_data, f"simulation/{CSV_FILENAME}")
+
+    # Save to JSON
+    save_to_json(sensor_data, f"simulation/{JSON_FILENAME}")
     
     # Display summary statistics
     temps = [d["temperature_c"] for d in sensor_data]
