@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from mrmr import mrmr_classif
+from sklearn.feature_selection import SelectKBest, mutual_info_classif
 
 # 1. Load Data
 df = pd.read_csv("final_training_set.csv")
@@ -22,10 +22,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 print(f"Initial Feature Matrix Shape: {X_train.shape}")
 
-# 3. mRMR Selection Layer
-print("\n--- Running Phase 1: mRMR Filter ---")
-selected_features = mrmr_classif(X=X_train, y=y_train, K=4)
-print(f"Top 4 mRMR Selected Features: {selected_features}")
+# 3. Mutual-information feature selection (SelectKBest — replaces mRMR,
+#    same relevance criterion, available on all Python versions via scikit-learn)
+print("\n--- Running Phase 1: Mutual Information Filter ---")
+selector = SelectKBest(mutual_info_classif, k=4)
+selector.fit(X_train, y_train)
+selected_features = list(X_train.columns[selector.get_support()])
+print(f"Top 4 selected features: {selected_features}")
 
 # Filter datasets to chosen variables
 X_train_mrmr = X_train[selected_features]
@@ -44,3 +47,11 @@ y_test = y_test.reset_index(drop=True)
 X_train_scaled.assign(Target=y_train).to_csv("X_train_scaled.csv", index=False)
 X_test_scaled.assign(Target=y_test).to_csv("X_test_scaled.csv", index=False)
 print("\nScaled mRMR features cached to 'X_train_scaled.csv' and 'X_test_scaled.csv'")
+
+# Persist scaler + feature list so ml_service.py can load them at inference time
+import joblib, json, os
+_here = os.path.dirname(os.path.abspath(__file__))
+joblib.dump(scaler, os.path.join(_here, "scaler.pkl"))
+with open(os.path.join(_here, "selected_features.json"), "w") as _f:
+    json.dump(selected_features, _f)
+print("Saved scaler.pkl and selected_features.json")

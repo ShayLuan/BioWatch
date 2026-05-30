@@ -153,6 +153,10 @@ async def simulation_loop():
             elif random.random() < 0.012:
                 t += 3 + random.random() * 2
             turb = max(0.0, t)
+            # Keep a buffer for virtual sensors so compute_features has history
+            if sid not in manager.data_buffer:
+                manager.data_buffer[sid] = []
+            manager.data_buffer[sid].append({"ts": now_ms, "temp": temp, "turbidity": turb})
             await process_reading(sid, temp, turb, now_ms)
 
 @app.on_event("startup")
@@ -221,6 +225,36 @@ async def process_reading(device_id: str, temp: float, turb: float, ts_ms: int):
             "windowHours":  WINDOW_HOURS,
         })
 
+# ── Derived feature computation from rolling buffer ──────────────────────────
+def compute_features(device_id: str, temp: float, turb: float, ts_ms: int) -> dict:
+    """
+    Build the full feature dict the ML service expects.
+    Derives time-windowed features from the device's data buffer.
+    Omitted sensor types (flow) default to 0.
+    """
+    history = manager.data_buffer.get(device_id, [])
+    ms_24h  = 24 * 3_600_000
+    ms_48h  = 48 * 3_600_000
+
+    readings_24h = [r for r in history if r["ts"] >= ts_ms - ms_24h]
+    readings_48h = [r for r in history if r["ts"] >= ts_ms - ms_48h]
+
+    turb_delta_24h = (turb - readings_24h[0]["turbidity"]) if readings_24h else 0.0
+    turb_max_48h   = max((r["turbidity"] for r in readings_48h), default=turb)
+    temp_mean_48h  = (sum(r["temp"] for r in readings_48h) / len(readings_48h)
+                      if readings_48h else temp)
+
+    return {
+        "Temperature_C":            temp,
+        "Turbidity_FNU":            turb,
+        "Turbidity_Delta_24h":      turb_delta_24h,
+        "Turbidity_Max_48h":        turb_max_48h,
+        "Temp_Rolling_Mean_48h":    temp_mean_48h,
+        "Temp_Turbidity_Interaction": temp * turb,
+        "Flow_CFS":                 0.0,
+        "Flow_Delta_24h":           0.0,
+    }
+
 # ── Gap 1 — Dashboard WebSocket endpoint ─────────────────────────────────────
 @app.websocket("/ws/dashboard")
 async def dashboard_websocket(websocket: WebSocket):
@@ -261,9 +295,13 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             normalised = {"ts": ts_ms, "temp": temp, "turbidity": turb}
             manager.data_buffer[device_id].append(normalised)
 
-            # AMR risk score (returned to the ESP32; also available for logging)
-            historical = manager.data_buffer[device_id][-100:]
-            risk = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
+            # Compute derived features and call the ML service (port 8001)
+            features   = compute_features(device_id, temp, turb, ts_ms)
+            ml_result  = await send_to_ml_endpoint(features)
+            # If the ML service is not running, fall back to local AMRRiskEngine
+            if "band" not in ml_result:
+                ml_result = risk_engine.calculate_realtime_risk(temp, turb)
+                ml_result["source"] = "AMRRiskEngine (fallback)"
 
             # Broadcast the three UI message types to all dashboard clients
             await process_reading(device_id, temp, turb, ts_ms)
@@ -273,7 +311,7 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 "device_id":   device_id,
                 "received_at": datetime.now().isoformat(),
                 "sensor_data": sensor_data,
-                "risk":        risk,
+                "risk":        ml_result,
             })
 
     except WebSocketDisconnect:
