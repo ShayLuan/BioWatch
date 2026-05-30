@@ -1,0 +1,169 @@
+=== Notes  (9 rows x 2 cols) ===
+['High and low flow represent above and below 75th percentile flow rates for North and South Fork; individual sites assigned to respective watershed depending on location', 'Unnamed: 1']
+
+=== OrthoP highflow  (152 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'PerFore
+st', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== OrthoP 75  (205 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'PerFore
+st', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== OrthoP  Graph  (71 rows x 14 cols) ===
+[0.14, 0.035, 'Unnamed: 2', 0.02, 0.03, 'Unnamed: 5', 0.1438214285714285, '0.03.1', 'Unnamed: 8', 0.02125, '0.02.1', 'Unnamed: 11', 0.0123, 0.01]  
+
+=== OrthoP  Stats  (74 rows x 23 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'High.1']
+
+=== TotalP highflow  (143 rows x 34 cols) ===
+['Alldates_totalP_h_Statistics.MonitoringLocationIdentifier', 'Alldates_totalP_h_Statistics.FREQUENCY', 'Alldates_totalP_h_Statistics.MEAN_ResultMe
+asureValue', 'Alldates_totalP_h_Statistics.STD_ResultMeasureValue', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates
+_totalP_h_Statistics.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'Unnamed: 7', 'allvalleydata.csv.PerForest', 'X', 'Y', 'Pred
+ Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TotalP 75  (260 rows x 34 cols) ===
+['Alldates_totalP_h_Statistics.MonitoringLocationIdentifier', 'Alldates_totalP_h_Statistics.FREQUENCY', 'Alldates_totalP_h_Statistics.MEAN_ResultMe
+asureValue', 'Alldates_totalP_h_Statistics.STD_ResultMeasureValue', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates
+_totalP_h_Statistics.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'Unnamed: 7', 'allvalleydata.csv.PerForest', 'X', 'Y', 'Pred
+ Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TotalP graph  (58 rows x 14 cols) ===
+[0.04319444444444446, 0.07500000000000001, 'Unnamed: 2', 0.03210526315789474, 0.08499999999999999, 'Unnamed: 5', 0.04750000000000001, 0.08, 'Unnamed: 8', 0.02108333333333333, 0.030625, 'Unnamed: 11', 0.01977142857142858, 0.02]
+
+=== TotalP  Stats  (61 rows x 22 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'High.1']
+
+=== Nitrate highflow  (152 rows x 34 cols) ===
+['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'Unnamed: 7', 'Unnamed: 8', 'X', 'Y', 'Pred Y', 
+'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== Nitrate 75  (301 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'allvall
+eydata.csv.PerForest', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 
+20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== Nitrate graph  (140 rows x 16 cols) ===
+[0.82, 2.7075, 'Unnamed: 2', 0.16, 1.99, 'Unnamed: 5', 1.292142857142857, 1.235555555555556, 'Unnamed: 8', 1.3025, 1.88, 'Unnamed: 11', 0.02474926517241382, 0.007919644444444443, 'Unnamed: 14', 'Unnamed: 15']
+
+=== Nitrate  Stats  (143 rows x 22 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'High.1']
+
+=== TotalN highflow  (186 rows x 34 cols) ===
+['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'Unnamed: 7', 'Unnamed: 8', 'X', 'Y', 'Pred Y', 
+'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TotalN 75  (241 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'allvall
+eydata.csv.PerForest', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 
+20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TotalN graph  (72 rows x 14 cols) ===
+[2.902666667, 'Unnamed: 1', 'Unnamed: 2', 0.964545455, 1.76, 'Unnamed: 5', 1.3175, 1.448888889, 'Unnamed: 8', 1.399902913, 1.77625, 'Unnamed: 11', 0.293235294, 0.446666667]
+
+=== TotalN Stats  (74 rows x 23 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'High.1']
+
+=== TSS highflow  (128 rows x 61 cols) ===
+['Alldates_data_high_ave.OBJECTID', 'Alldates_data_high_ave.MonitoringLocationIdentifier', 'Alldates_data_high_ave.FREQUENCY', 'Alldates_data_high_
+ave.MEAN_ResultMeasureValue', 'Alldates_data_high_ave.STD_ResultMeasureValue', 'Alldates_data_high_ave.MEAN_ActivityLocation_LatitudeMeasure', 'All
+dates_data_high_ave.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'allvalleydata.csv.location', 'allvalleydata.csv.Lat', 'allva
+lleydata.csv.Long', 'allvalleydata.csv.fid2', 'allvalleydata.csv.Area', 'allvalleydata.csv.HISTO_NODATA', 'allvalleydata.csv.Open water', 'allvalle
+ydata.csv.Developed Open Space', 'allvalleydata.csv.Developed Low Intensity', 'allvalleydata.csv.Developed Medium Intensity', 'allvalleydata.csv.De
+veloped High Intensity', 'allvalleydata.csv.Barren Land', 'allvalleydata.csv.Deciduous Forest', 'allvalleydata.csv.Evergreen Forest', 'allvalleydat
+a.csv.Mixed Forest', 'allvalleydata.csv.Shrub/Scrub', 'allvalleydata.csv.Grassland/Herbaceous', 'allvalleydata.csv.Pasture/Hay', 'allvalleydata.csv
+.Cultivated Crops', 'allvalleydata.csv.Woody Wetlands', 'allvalleydata.csv.Emergent Herbaceous Wetlands', 'allvalleydata.csv.Total pixels', 'allval
+leydata.csv.PerForest', 'allvalleydata.csv.PerPasture/crop', 'allvalleydata.csv.PerDeveloped/barren', 'allvalleydata.csv.PerWater', 'allvalleydata.
+csv.PerWetlands', 'allvalleydata.csv.phosphate', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS',
+ 'Unnamed: 46', 'Unnamed: 47', 'Unnamed: 48', 'Unnamed: 49', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TSS75  (214 rows x 61 cols) ===
+['Alldates_data_flo_TSS75.OBJECTID', 'Alldates_data_flo_TSS75.MonitoringLocationIdentifier', 'Alldates_data_flo_TSS75.FREQUENCY', 'Alldates_data_fl
+o_TSS75.MEAN_ResultMeasureValue', 'Alldates_data_flo_TSS75.STD_ResultMeasureValue', 'Alldates_data_flo_TSS75.MEAN_ActivityLocation_LatitudeMeasure'
+, 'Alldates_data_flo_TSS75.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'allvalleydata.csv.location', 'allvalleydata.csv.Lat',
+ 'allvalleydata.csv.Long', 'allvalleydata.csv.fid2', 'allvalleydata.csv.Area', 'allvalleydata.csv.HISTO_NODATA', 'allvalleydata.csv.Open water', 'a
+llvalleydata.csv.Developed Open Space', 'allvalleydata.csv.Developed Low Intensity', 'allvalleydata.csv.Developed Medium Intensity', 'allvalleydata
+.csv.Developed High Intensity', 'allvalleydata.csv.Barren Land', 'allvalleydata.csv.Deciduous Forest', 'allvalleydata.csv.Evergreen Forest', 'allva
+lleydata.csv.Mixed Forest', 'allvalleydata.csv.Shrub/Scrub', 'allvalleydata.csv.Grassland/Herbaceous', 'allvalleydata.csv.Pasture/Hay', 'allvalleyd
+ata.csv.Cultivated Crops', 'allvalleydata.csv.Woody Wetlands', 'allvalleydata.csv.Emergent Herbaceous Wetlands', 'allvalleydata.csv.Total pixels', 
+'allvalleydata.csv.PerForest', 'allvalleydata.csv.PerPasture/crop', 'allvalleydata.csv.PerDeveloped/barren', 'allvalleydata.csv.PerWater', 'allvall
+eydata.csv.PerWetlands', 'allvalleydata.csv.phosphate', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'D
+FFITS', 'Unnamed: 46', 'Unnamed: 47', 'Unnamed: 48', 'Unnamed: 49', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== TSS graph  (58 rows x 14 cols) ===
+[13, 27.25, 'Unnamed: 2', 8.8, 18.5, 'Unnamed: 5', 3, 4, 'Unnamed: 8', 4.625, 15, 'Unnamed: 11', 3.803343571428571, 0.50968]
+
+=== TSS stats  (61 rows x 21 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unnamed: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'High.1']
+
+=== ecoli highflow  (194 rows x 62 cols) ===
+['Alldates_data_ecoli_high.OBJECTID', 'Alldates_data_ecoli_high.MonitoringLocationIdentifier', 'Alldates_data_ecoli_high.FREQUENCY', 'Alldates_data
+_ecoli_high.MEAN_ResultMeasureValue', 'Alldates_data_ecoli_high.STD_ResultMeasureValue', 'Alldates_data_ecoli_high.MEAN_ActivityLocation_LatitudeMe
+asure', 'Alldates_data_ecoli_high.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'allvalleydata.csv.location', 'allvalleydata.cs
+v.Lat', 'allvalleydata.csv.Long', 'allvalleydata.csv.fid2', 'allvalleydata.csv.Area', 'allvalleydata.csv.HISTO_NODATA', 'allvalleydata.csv.Open wat
+er', 'allvalleydata.csv.Developed Open Space', 'allvalleydata.csv.Developed Low Intensity', 'allvalleydata.csv.Developed Medium Intensity', 'allval
+leydata.csv.Developed High Intensity', 'allvalleydata.csv.Barren Land', 'allvalleydata.csv.Deciduous Forest', 'allvalleydata.csv.Evergreen Forest',
+ 'allvalleydata.csv.Mixed Forest', 'allvalleydata.csv.Shrub/Scrub', 'allvalleydata.csv.Grassland/Herbaceous', 'allvalleydata.csv.Pasture/Hay', 'all
+valleydata.csv.Cultivated Crops', 'allvalleydata.csv.Woody Wetlands', 'allvalleydata.csv.Emergent Herbaceous Wetlands', 'allvalleydata.csv.Total pi
+xels', 'allvalleydata.csv.PerForest', 'Unnamed: 31', 'Unnamed: 32', 'Unnamed: 33', 'Unnamed: 34', 'Unnamed: 35', 'X', 'Y', 'Pred Y', 'Residual', 'L
+everage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 46', 'Unnamed: 47', 'Unnamed: 48', 'Unnamed: 49', 'Unnamed: 50', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== ecoli 75  (255 rows x 84 cols) ===
+['Alldates_data_flo_ecoli75.OBJECTID', 'Alldates_data_flo_ecoli75.MonitoringLocationIdentifier', 'Alldates_data_flo_ecoli75.FREQUENCY', 'Alldates_d
+ata_flo_ecoli75.MEAN_ResultMeasureValue', 'Alldates_data_flo_ecoli75.STD_ResultMeasureValue', 'Alldates_data_flo_ecoli75.MEAN_ActivityLocation_Lati
+tudeMeasure', 'Alldates_data_flo_ecoli75.MEAN_ActivityLocation_LongitudeMeasure', 'allvalleydata.csv.fid', 'allvalleydata.csv.location', 'allvalley
+data.csv.Lat', 'allvalleydata.csv.Long', 'allvalleydata.csv.fid2', 'allvalleydata.csv.Area', 'allvalleydata.csv.HISTO_NODATA', 'allvalleydata.csv.O
+pen water', 'allvalleydata.csv.Developed Open Space', 'allvalleydata.csv.Developed Low Intensity', 'allvalleydata.csv.Developed Medium Intensity', 
+'allvalleydata.csv.Developed High Intensity', 'allvalleydata.csv.Barren Land', 'allvalleydata.csv.Deciduous Forest', 'allvalleydata.csv.Evergreen F
+orest', 'allvalleydata.csv.Mixed Forest', 'allvalleydata.csv.Shrub/Scrub', 'allvalleydata.csv.Grassland/Herbaceous', 'allvalleydata.csv.Pasture/Hay
+', 'allvalleydata.csv.Cultivated Crops', 'allvalleydata.csv.Woody Wetlands', 'allvalleydata.csv.Emergent Herbaceous Wetlands', 'allvalleydata.csv.T
+otal pixels', 'allvalleydata.csv.PerForest', 'Unnamed: 31', 'Unnamed: 32', 'Unnamed: 33', 'Unnamed: 34', 'Unnamed: 35', 'X', 'Y', 'Pred Y', 'Residu
+al', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 46', 'Unnamed: 47', 'Unnamed: 48', 'Unnamed: 49', 'category', 'X.
+1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1', 'Unnamed: 61', 'Unnamed: 62', '
+Unnamed: 63', 'Unnamed: 64', 'Unnamed: 65', 'category.1', 'X.2', 'Y.2', 'Unnamed: 69', 'Unnamed: 70', 'Y.3', 'Unnamed: 72', 'Unnamed: 73', 'Unnamed: 74', 'Unnamed: 75', 'Unnamed: 76', 'Unnamed: 77', 'Unnamed: 78', 'Unnamed: 79', 'Unnamed: 80', 'Unnamed: 81', 'Unnamed: 82', 'Unnamed: 83']      
+
+=== ecoli graph  (62 rows x 15 cols) ===
+['Unnamed: 0', 2.5440680443502757, 2.6199757987055543, 'Unnamed: 3', 2.641598035310734, 3.6868149545073168, 'Unnamed: 6', 2.4950139491046386, 2.820559689763227, 'Unnamed: 9', 2.6998106357956964, 2.6816288273003788, 'Unnamed: 12', 2.3305152321703284, 1.3979400086720377]
+
+=== ecoli stats  (65 rows x 22 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'High.1']
+
+=== cond high  (349 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'PerFore
+st', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== cond 75  (638 rows x 34 cols) ===
+['LocationIdentifier', 'FREQUENCY', 'ResultMeasureValue', 'STD_ResultMeasureValue', 'LatitudeMeasure', 'LongitudeMeasure', 'fid2', 'Area', 'PerFore
+st', 'X', 'Y', 'Pred Y', 'Residual', 'Leverage', 'Mod MSE', 'Rstudent', 'T-test', "Cook's D", 'DFFITS', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'Unnamed: 22', 'category', 'X.1', 'Y.1', 'Pred Y.1', 'Residual.1', 'Leverage.1', 'Mod MSE.1', 'Rstudent.1', 'T-test.1', "Cook's D.1", 'DFFITS.1']
+
+=== Conductivity graph  (281 rows x 14 cols) ===
+[429, 713, 'Unnamed: 2', 464.3571428571428, 388, 'Unnamed: 5', 374.8285714285714, 227.9411764705882, 'Unnamed: 8', 224.8509090909091, 141.6736842105263, 'Unnamed: 11', 14.96590666666667, 19.3122601234568]
+
+=== cond stats  (284 rows x 23 cols) ===
+['Flow rate', 'Low', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', 'High', 'Unnamed: 8', 'Unnamed: 9', 'Unnamed: 10', 'Unna
+med: 11', 'Unnamed: 12', 'Low.1', 'Unnamed: 14', 'Unnamed: 15', 'Unnamed: 16', 'Unnamed: 17', 'Unnamed: 18', 'Unnamed: 19', 'Unnamed: 20', 'Unnamed: 21', 'High.1']
+Notes: ['High and low flow represent above and below 75th percentile flow rates for North and South Fork; individual sites assigned to respective watershed depending on location']
+OrthoP  Stats: ['Flow rate']
+TotalP highflow: ['Alldates_totalP_h_Statistics.MonitoringLocationIdentifier', 'Alldates_totalP_h_Statistics.FREQUENCY', 'Alldates_totalP_h_Statist
+ics.MEAN_ResultMeasureValue', 'Alldates_totalP_h_Statistics.STD_ResultMeasureValue', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LongitudeMeasure']
+TotalP 75: ['Alldates_totalP_h_Statistics.MonitoringLocationIdentifier', 'Alldates_totalP_h_Statistics.FREQUENCY', 'Alldates_totalP_h_Statistics.ME
+AN_ResultMeasureValue', 'Alldates_totalP_h_Statistics.STD_ResultMeasureValue', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_totalP_h_Statistics.MEAN_ActivityLocation_LongitudeMeasure']
+TotalP  Stats: ['Flow rate']
+Nitrate  Stats: ['Flow rate']
+TotalN Stats: ['Flow rate']
+TSS highflow: ['Alldates_data_high_ave.OBJECTID', 'Alldates_data_high_ave.MonitoringLocationIdentifier', 'Alldates_data_high_ave.FREQUENCY', 'Allda
+tes_data_high_ave.MEAN_ResultMeasureValue', 'Alldates_data_high_ave.STD_ResultMeasureValue', 'Alldates_data_high_ave.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_data_high_ave.MEAN_ActivityLocation_LongitudeMeasure']
+TSS75: ['Alldates_data_flo_TSS75.OBJECTID', 'Alldates_data_flo_TSS75.MonitoringLocationIdentifier', 'Alldates_data_flo_TSS75.FREQUENCY', 'Alldates_
+data_flo_TSS75.MEAN_ResultMeasureValue', 'Alldates_data_flo_TSS75.STD_ResultMeasureValue', 'Alldates_data_flo_TSS75.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_data_flo_TSS75.MEAN_ActivityLocation_LongitudeMeasure']
+TSS stats: ['Flow rate']
+ecoli highflow: ['Alldates_data_ecoli_high.OBJECTID', 'Alldates_data_ecoli_high.MonitoringLocationIdentifier', 'Alldates_data_ecoli_high.FREQUENCY'
+, 'Alldates_data_ecoli_high.MEAN_ResultMeasureValue', 'Alldates_data_ecoli_high.STD_ResultMeasureValue', 'Alldates_data_ecoli_high.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_data_ecoli_high.MEAN_ActivityLocation_LongitudeMeasure']
+ecoli 75: ['Alldates_data_flo_ecoli75.OBJECTID', 'Alldates_data_flo_ecoli75.MonitoringLocationIdentifier', 'Alldates_data_flo_ecoli75.FREQUENCY', '
+Alldates_data_flo_ecoli75.MEAN_ResultMeasureValue', 'Alldates_data_flo_ecoli75.STD_ResultMeasureValue', 'Alldates_data_flo_ecoli75.MEAN_ActivityLocation_LatitudeMeasure', 'Alldates_data_flo_ecoli75.MEAN_ActivityLocation_LongitudeMeasure']
+ecoli stats: ['Flow rate']
+cond stats: ['Flow rate']
+PS C:\Users\najla\Downloads\CTF files\MPC HACKS 2026> 
