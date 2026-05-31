@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.git/
+.env
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+simulation/
+esp32/
+pi/
+ML/*.csv
