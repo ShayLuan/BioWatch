@@ -349,9 +349,13 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             normalised = {"ts": ts_ms, "temp": temp, "turbidity": turb}
             manager.data_buffer[device_id].append(normalised)
 
-            # Local AMR risk engine (ml_service on port 8001 not required)
-            historical = manager.data_buffer[device_id][-100:]
-            ml_result  = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
+            # Send to ML service (port 8001); falls back to local engine if not running
+            features   = compute_features(device_id, temp, turb, ts_ms)
+            ml_result  = await send_to_ml_endpoint(features)
+            if "band" not in ml_result:
+                historical = manager.data_buffer[device_id][-100:]
+                ml_result  = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
+                ml_result["source"] = "AMRRiskEngine (fallback)"
 
             # Broadcast the three UI message types to all dashboard clients
             await process_reading(device_id, temp, turb, ts_ms)
