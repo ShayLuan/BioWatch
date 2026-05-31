@@ -35,10 +35,10 @@ app.add_middleware(
 risk_engine = AMRRiskEngine()
 
 # ── Flag / tier thresholds — kept in sync with src/config.js ─────────────────
-TURB_FLAG_NTU    = 4.5
-WARM_TEMP_C      = 26.0
+TURB_FLAG_NTU    = 8.0
+WARM_TEMP_C      = 30.0
 WINDOW_HOURS     = 6
-FLAG_DEBOUNCE_MS = 30_000   # 30 s minimum between flags — primary gate at high send rate
+FLAG_DEBOUNCE_MS = 60_000   # 60 s minimum between flags — hospital sink environment
 FLAG_WARN  = 5              # ~2.5 min sustained contamination
 FLAG_WARN2 = 10             # ~5 min
 FLAG_PANIC = 18             # ~9 min of repeated contamination in 6 h window
@@ -171,10 +171,10 @@ EMIT_INTERVAL = 1.5   # seconds between ticks
 INJECT_TICKS  = 2     # how many ticks a contamination pulse lasts
 
 _virtual_sensors = [
-    {"id": "S-01", "baseTemp": 27.2, "baseTurb": 1.1},
+    {"id": "S-01", "baseTemp": 24.0, "baseTurb": 1.1},
     {"id": "S-02", "baseTemp": 22.8, "baseTurb": 0.9},
-    {"id": "S-03", "baseTemp": 28.4, "baseTurb": 2.0},
-    {"id": "S-04", "baseTemp": 29.1, "baseTurb": 2.4},
+    {"id": "S-03", "baseTemp": 25.0, "baseTurb": 2.0},
+    {"id": "S-04", "baseTemp": 25.5, "baseTurb": 2.4},
 ]
 
 _sim_state: Dict[str, dict] = {
