@@ -146,14 +146,15 @@ export default function WaterSentinelDashboard() {
   }
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8000/ws/dashboard");
+    const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(`${wsProto}//${window.location.host}/ws/dashboard`);
     ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
     ws.onerror   = (e) => console.error("[BioWatch] WS error", e);
     backend.current = { inject: (id) => ws.send(JSON.stringify({ cmd: "inject", sensorId: id })) };
 
     const clock_t = setInterval(() => setClock(Date.now()), 1000);
     const panic_t = setInterval(() => {
-      fetch("http://localhost:8000/api/panic-log")
+      fetch("/api/panic-log")
         .then((r) => r.json())
         .then((d) => setPanicLog(d.entries ?? []))
         .catch(() => {});

@@ -3,15 +3,15 @@ import {
 } from "lucide-react";
 
 export const CONFIG = {
-  WARM_TEMP_C:     26,
-  TURB_FLAG_NTU:   4.5,
+  WARM_TEMP_C:     30,
+  TURB_FLAG_NTU:   8.0,
   WINDOW_HOURS:    6,
   FLAG_WARN:        5,
   FLAG_WARN2:       10,
   FLAG_PANIC:       18,
   EMIT_MS:          200,
   INJECT_TICKS:     2,
-  FLAG_DEBOUNCE_MS: 30000,
+  FLAG_DEBOUNCE_MS: 60000,
   HISTORY:         40,
   TURB_VIS_MAX:    12,
   MONITOR_HOURS:   36,

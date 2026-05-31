@@ -22,10 +22,14 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="BioWatch Sensor Backend")
 
-# Gap 3 — CORS: allow the Vite dev server to open WebSocket + HTTP connections
+# CORS: configurable via CORS_ORIGINS env var (dev only — not needed when frontend is served by backend)
+_cors_origins = [o.strip() for o in os.environ.get(
+    "CORS_ORIGINS", "http://localhost:5173,http://localhost:4173"
+).split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:4173"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -215,7 +219,7 @@ async def simulation_loop():
 async def startup():
     asyncio.create_task(simulation_loop())
 
-ML_ENDPOINT = "http://localhost:8001/predict"
+ML_ENDPOINT = os.environ.get("ML_ENDPOINT", "http://localhost:8001/predict")
 
 async def send_to_ml_endpoint(sensor_data: dict) -> dict:
     try:
@@ -471,6 +475,12 @@ async def clear_device_history(device_id: str):
         return {"message": f"History cleared for {device_id}"}
     return JSONResponse(status_code=404, content={"error": f"Device {device_id} not found"})
 
+# Serve built React frontend in production (dist/ exists after `npm run build`)
+_dist = os.path.join(os.path.dirname(__file__), "..", "dist")
+if os.path.isdir(_dist):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=_dist, html=True), name="frontend")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
