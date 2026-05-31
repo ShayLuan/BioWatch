@@ -2,239 +2,263 @@
 """
 BioWatch — ILI9341 320×240 dashboard for Pi Zero W
 
-Wiring (Pi Zero W → ILI9341)
-─────────────────────────────
-  GPIO 11 (SPI0_CLK)  → CLK / SCK
-  GPIO 10 (SPI0_MOSI) → MOSI / SDA
-  GPIO  8 (SPI0_CE0)  → CS
-  GPIO 24             → DC
-  GPIO 25             → RST
-  3.3 V               → VCC + LED (backlight)
-  GND                 → GND
+Layout (320×240)
+─────────────────────────────────────────────────────
+  Y=  0  Header bar  28px  — title + clock
+  Y= 28  Dots strip  22px  — 4 flag-level dots
+  Y= 50  ├──stats──┬──────graph──────┤
+         │ 130px   │    190px        │  130px tall
+  Y=180  └─────────┴─────────────────┘
+  Y=180  Action strip  60px  — tier message / cleaning steps
 
-Install (Pi Zero W)
-───────────────────
-  sudo apt install python3-pip python3-dev libopenjp2-7 libtiff5 -y
+Wiring (Pi Zero W SPI0)
+────────────────────────
+  GPIO 11  CLK/SCK → ILI9341 CLK
+  GPIO 10  MOSI    → ILI9341 MOSI/SDA
+  GPIO  8  CE0     → ILI9341 CS
+  GPIO 24  D24     → ILI9341 DC
+  GPIO 25  D25     → ILI9341 RST
+  3.3 V            → VCC + LED
+  GND              → GND
+
+Install
+───────
+  sudo raspi-config → Interface Options → SPI → enable → reboot
   pip3 install adafruit-circuitpython-rgb-display adafruit-blinka \
                pillow websockets
 
-Enable SPI via raspi-config → Interface Options → SPI → Yes, reboot.
-
-Run alongside the server
-────────────────────────
-  # terminal 1
-  cd ~/BioWatch && python backend/server.py
-  # terminal 2
-  python pi/display.py
+Run alongside server
+─────────────────────
+  # Server is on the Legion: change SERVER_WS below to its IP.
+  # If Pi IS the server, keep localhost.
 """
 
-import asyncio
-import json
-import time
+import asyncio, json, time
 from collections import deque
 from datetime import datetime
 
 import websockets
 from PIL import Image, ImageDraw, ImageFont
 
-import board
-import busio
-import digitalio
+import board, busio, digitalio
 import adafruit_rgb_display.ili9341 as ili9341
 
-# ── Display init ────────────────────────────────────────────────────────────
-spi     = busio.SPI(clock=board.SCK, MOSI=board.MOSI)
-cs      = digitalio.DigitalInOut(board.CE0)
-dc      = digitalio.DigitalInOut(board.D24)
-rst     = digitalio.DigitalInOut(board.D25)
-display = ili9341.ILI9341(spi, cs=cs, dc=dc, rst=rst,
-                           width=320, height=240, baudrate=16_000_000)
+# ── Config ──────────────────────────────────────────────────────────────────
+SERVER_WS = "ws://192.168.43.119:8000/ws/dashboard"  # Legion IP — change if Pi is server
 
 W, H = 320, 240
 
-# ── Layout ──────────────────────────────────────────────────────────────────
-HDR_H   = 24          # header bar
-STAT_W  = 140         # left stats column
-GRAPH_X = STAT_W
-GRAPH_W = W - STAT_W  # 180 px
-GRAPH_H = H - HDR_H - 78
-FLAG_Y  = HDR_H + GRAPH_H
-FLAG_H  = H - FLAG_Y
-MAX_FLAGS_VISIBLE = 3
+# Layout
+HDR_H    = 28      # header bar
+DOTS_H   = 22      # flag dots strip
+MAIN_Y   = HDR_H + DOTS_H          # 50
+MAIN_H   = 130
+STAT_W   = 130
+GRAPH_X  = STAT_W
+GRAPH_W  = W - STAT_W              # 190
+ACTION_Y = MAIN_Y + MAIN_H         # 180
+ACTION_H = H - ACTION_Y            # 60
 
-# ── Colours (RGB) ───────────────────────────────────────────────────────────
+TURB_GRAPH_MAX  = 20.0
+TURB_FLAG_NTU   = 4.5
+GRAPH_SAMPLES   = GRAPH_W
+
+# ── Colours ─────────────────────────────────────────────────────────────────
 BG      = (10,  10,  20)
 PANEL   = (20,  20,  40)
 WHITE   = (255, 255, 255)
-GREY    = (120, 120, 140)
+GREY    = (110, 110, 130)
 CYAN    = (0,   210, 255)
 GREEN   = (50,  220, 110)
 YELLOW  = (255, 210, 0)
 ORANGE  = (255, 130, 0)
 RED     = (255, 45,  45)
 GRAPH_LINE = (0, 170, 230)
+EMPTY_DOT  = (40,  40,  60)
 
 TIER_COL = {
-    "normal":   GREEN,
-    "watch":    YELLOW,
-    "elevated": ORANGE,
-    "critical": RED,
+    "passed": GREEN,
+    "warn":   YELLOW,
+    "warn2":  ORANGE,
+    "panic":  RED,
+}
+TIER_LABEL = {
+    "passed": "PASSED",
+    "warn":   "WARN",
+    "warn2":  "WARN LVL 2",
+    "panic":  "PANIC",
 }
 
-# ── Fonts ───────────────────────────────────────────────────────────────────
-FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans{}.ttf"
-def _font(size, bold=False):
-    try:
-        return ImageFont.truetype(FONT_PATH.format("-Bold" if bold else ""), size)
-    except Exception:
-        return ImageFont.load_default()
+def flag_dot_color(flag_num: int):
+    if flag_num >= 5: return RED
+    if flag_num == 4: return ORANGE
+    if flag_num == 3: return YELLOW
+    return WHITE
 
-fnt_big  = _font(34, bold=True)   # large numbers
-fnt_med  = _font(19, bold=True)   # turbidity reading
-fnt_sm   = _font(13)              # labels
-fnt_tiny = _font(11)              # flags + sub-labels
+def get_dots(count: int):
+    """Return list of 4 (color, lit) tuples."""
+    if count == 0:
+        return [(EMPTY_DOT, False)] * 4
+    start = max(1, count - 3)
+    nums  = list(range(start, count + 1))
+    dots  = [(EMPTY_DOT, False)] * (4 - len(nums))
+    dots += [(flag_dot_color(n), True) for n in nums]
+    return dots
 
-# ── State shared between WS listener and renderer ───────────────────────────
-GRAPH_SAMPLES = GRAPH_W          # one pixel column per sample
-turb_buf      = deque([0.0] * GRAPH_SAMPLES, maxlen=GRAPH_SAMPLES)
-TURB_GRAPH_MAX = 20.0            # NTU ceiling for Y-axis
+# ── Display init ─────────────────────────────────────────────────────────────
+spi     = busio.SPI(clock=board.SCK, MOSI=board.MOSI)
+cs      = digitalio.DigitalInOut(board.CE0)
+dc      = digitalio.DigitalInOut(board.D24)
+rst     = digitalio.DigitalInOut(board.D25)
+display = ili9341.ILI9341(spi, cs=cs, dc=dc, rst=rst,
+                           width=W, height=H, baudrate=16_000_000)
+
+# ── Fonts ────────────────────────────────────────────────────────────────────
+_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans{}.ttf"
+def _f(size, bold=False):
+    try:    return ImageFont.truetype(_FONT.format("-Bold" if bold else ""), size)
+    except: return ImageFont.load_default()
+
+fnt_big  = _f(32, bold=True)
+fnt_med  = _f(18, bold=True)
+fnt_sm   = _f(13)
+fnt_tiny = _f(11)
+
+# ── State ────────────────────────────────────────────────────────────────────
+turb_buf = deque([0.0] * GRAPH_SAMPLES, maxlen=GRAPH_SAMPLES)
 
 state = {
-    "temp":    None,
-    "turb":    None,
-    "tier":    "normal",
-    "sensor":  "—",
-    "flags":   deque(maxlen=20),  # full history; only last 3 shown
+    "temp":   None,
+    "turb":   None,
+    "tier":   "passed",
+    "count":  0,
+    "action": None,
+    "steps":  None,
 }
 
-# ── Renderer ────────────────────────────────────────────────────────────────
+# ── Renderer ─────────────────────────────────────────────────────────────────
 def render():
     img  = Image.new("RGB", (W, H), BG)
-    draw = ImageDraw.Draw(img)
+    d    = ImageDraw.Draw(img)
     tcol = TIER_COL.get(state["tier"], GREEN)
+    now  = datetime.now().strftime("%H:%M:%S")
 
-    # Header bar
-    draw.rectangle([0, 0, W - 1, HDR_H - 1], fill=PANEL)
-    draw.text((6, 5),       "BioWatch",              font=fnt_sm,  fill=CYAN)
-    draw.text((90, 5),      f"[{state['tier'].upper()}]",
-                                                      font=fnt_sm,  fill=tcol)
-    draw.text((W - 62, 5),  datetime.now().strftime("%H:%M:%S"),
-                                                      font=fnt_sm,  fill=GREY)
+    # ── Header bar ───────────────────────────────────────────────────────────
+    d.rectangle([0, 0, W - 1, HDR_H - 1], fill=PANEL)
+    d.text((8, 7), "BioWatch", font=fnt_sm, fill=CYAN)
+    d.text((W - 62, 7), now, font=fnt_sm, fill=GREY)
 
-    # Left stats panel background
-    draw.rectangle([0, HDR_H, STAT_W - 1, FLAG_Y - 1], fill=PANEL)
-    draw.line([STAT_W - 1, HDR_H, STAT_W - 1, FLAG_Y - 1], fill=GREY)
+    # ── Flag dots strip ───────────────────────────────────────────────────────
+    d.rectangle([0, HDR_H, W - 1, MAIN_Y - 1], fill=(14, 14, 28))
+    dots = get_dots(state["count"])
+    dot_r = 7
+    total_w = 4 * (dot_r * 2) + 3 * 8
+    x0 = (W - total_w) // 2
+    for i, (col, lit) in enumerate(dots):
+        cx = x0 + i * (dot_r * 2 + 8) + dot_r
+        cy = HDR_H + DOTS_H // 2
+        if lit:
+            d.ellipse([cx - dot_r, cy - dot_r, cx + dot_r, cy + dot_r], fill=col)
+        else:
+            d.ellipse([cx - dot_r, cy - dot_r, cx + dot_r, cy + dot_r],
+                      outline=EMPTY_DOT, width=1)
 
-    # Temperature
-    draw.text((8, HDR_H + 6), "TEMP", font=fnt_tiny, fill=GREY)
-    temp_str = f"{state['temp']:.1f}°C" if state["temp"] is not None else "—"
-    draw.text((8, HDR_H + 18), temp_str, font=fnt_big, fill=WHITE)
+    # ── Left stats panel ──────────────────────────────────────────────────────
+    d.rectangle([0, MAIN_Y, STAT_W - 1, ACTION_Y - 1], fill=PANEL)
+    d.line([STAT_W - 1, MAIN_Y, STAT_W - 1, ACTION_Y - 1], fill=GREY)
 
-    # Turbidity
-    draw.text((8, HDR_H + 68), "TURBIDITY", font=fnt_tiny, fill=GREY)
+    d.text((8, MAIN_Y + 5),  "TEMP",  font=fnt_tiny, fill=GREY)
+    t_str = f"{state['temp']:.1f}°C" if state["temp"] is not None else "—"
+    d.text((8, MAIN_Y + 18), t_str,   font=fnt_big,  fill=WHITE)
+
+    d.text((8, MAIN_Y + 65), "TURBIDITY", font=fnt_tiny, fill=GREY)
     turb_str = f"{state['turb']:.1f}" if state["turb"] is not None else "—"
-    draw.text((8, HDR_H + 80), turb_str, font=fnt_med, fill=tcol)
-    draw.text((8, HDR_H + 102), "NTU",   font=fnt_tiny, fill=GREY)
+    d.text((8, MAIN_Y + 78), turb_str, font=fnt_med,  fill=tcol)
+    d.text((8, MAIN_Y + 100), "NTU",   font=fnt_tiny, fill=GREY)
 
-    # Sensor ID bottom of stats
-    draw.text((8, FLAG_Y - 16), state["sensor"], font=fnt_tiny, fill=GREY)
-
-    # Graph area background
-    draw.rectangle([GRAPH_X, HDR_H, W - 1, FLAG_Y - 1], fill=(5, 5, 15))
-
-    # Grid lines at 25 / 50 / 75 %
+    # ── Graph area ────────────────────────────────────────────────────────────
+    d.rectangle([GRAPH_X, MAIN_Y, W - 1, ACTION_Y - 1], fill=(5, 5, 15))
     for pct in (0.25, 0.5, 0.75):
-        gy = int(FLAG_Y - 1 - pct * GRAPH_H)
-        draw.line([GRAPH_X, gy, W - 1, gy], fill=(28, 28, 48))
+        gy = int(ACTION_Y - 1 - pct * MAIN_H)
+        d.line([GRAPH_X, gy, W - 1, gy], fill=(28, 28, 48))
+    # Flag threshold line
+    gy_flag = int(ACTION_Y - 1 - (TURB_FLAG_NTU / TURB_GRAPH_MAX) * (MAIN_H - 2))
+    d.line([GRAPH_X, gy_flag, W - 1, gy_flag], fill=(160, 50, 50))
 
-    # Threshold line at TURB_FLAG_NTU (4.5 NTU)
-    TURB_FLAG_NTU = 4.5
-    gy_flag = int(FLAG_Y - 1 - (TURB_FLAG_NTU / TURB_GRAPH_MAX) * (GRAPH_H - 2))
-    draw.line([GRAPH_X, gy_flag, W - 1, gy_flag], fill=(180, 60, 60))
-
-    # Plot turbidity history as a line
     pts = list(turb_buf)
     prev = None
     for i, v in enumerate(pts):
         x = GRAPH_X + i
-        y = int(FLAG_Y - 1 - min(v / TURB_GRAPH_MAX, 1.0) * (GRAPH_H - 2))
+        y = int(ACTION_Y - 1 - min(v / TURB_GRAPH_MAX, 1.0) * (MAIN_H - 2))
         if prev:
-            draw.line([prev, (x, y)], fill=GRAPH_LINE, width=1)
+            d.line([prev, (x, y)], fill=GRAPH_LINE, width=1)
         prev = (x, y)
+    d.text((GRAPH_X + 3, MAIN_Y + 2), f"0–{int(TURB_GRAPH_MAX)} NTU",
+           font=fnt_tiny, fill=GREY)
 
-    # Graph axis label
-    draw.text((GRAPH_X + 3, HDR_H + 2),
-              f"Turbidity  0–{int(TURB_GRAPH_MAX)} NTU", font=fnt_tiny, fill=GREY)
+    # ── Action strip ─────────────────────────────────────────────────────────
+    action_bg = {
+        "passed": (12, 30, 20),
+        "warn":   (40, 35, 5),
+        "warn2":  (45, 25, 5),
+        "panic":  (50, 8,  8),
+    }.get(state["tier"], BG)
+    d.rectangle([0, ACTION_Y, W - 1, H - 1], fill=action_bg)
+    d.line([0, ACTION_Y, W - 1, ACTION_Y], fill=tcol)
 
-    # Flags strip
-    draw.rectangle([0, FLAG_Y, W - 1, H - 1], fill=(15, 7, 7))
-    draw.line([0, FLAG_Y, W - 1, FLAG_Y], fill=RED)
-    draw.text((6, FLAG_Y + 3), "FLAGS", font=fnt_tiny, fill=RED)
+    tier_label = TIER_LABEL.get(state["tier"], "")
+    d.text((8, ACTION_Y + 4), f"[{tier_label}]", font=fnt_tiny, fill=tcol)
 
-    recent = list(reversed(state["flags"]))[:MAX_FLAGS_VISIBLE]
-    for i, f in enumerate(recent):
-        y = FLAG_Y + 14 + i * 20
-        line = f"{f['ts']}  T:{f['temp']:.1f}°C  NTU:{f['turb']:.1f}"
-        draw.text((6, y), line, font=fnt_tiny, fill=ORANGE)
-
-    if not recent:
-        draw.text((6, FLAG_Y + 14), "No flags in window", font=fnt_tiny, fill=GREY)
+    if state["action"]:
+        d.text((8, ACTION_Y + 18), state["action"], font=fnt_tiny, fill=WHITE)
+    if state["tier"] == "panic" and state["steps"]:
+        step = state["steps"][0] if state["steps"] else ""
+        d.text((8, ACTION_Y + 34), f"1. {step}", font=fnt_tiny, fill=ORANGE)
+        d.text((8, ACTION_Y + 48), "   See dashboard for full protocol", font=fnt_tiny, fill=GREY)
+    elif state["tier"] == "passed":
+        d.text((8, ACTION_Y + 18), "Conditions nominal.", font=fnt_tiny, fill=GREEN)
 
     display.image(img)
 
-# ── Boot screen ─────────────────────────────────────────────────────────────
-def boot_screen(msg="Connecting…"):
-    img  = Image.new("RGB", (W, H), BG)
-    draw = ImageDraw.Draw(img)
-    draw.text((10, H // 2 - 20), "BioWatch", font=fnt_big,  fill=CYAN)
-    draw.text((10, H // 2 + 20), msg,         font=fnt_sm,   fill=GREY)
+# ── Boot screen ───────────────────────────────────────────────────────────────
+def boot_screen(msg: str = "Connecting…"):
+    img = Image.new("RGB", (W, H), BG)
+    d   = ImageDraw.Draw(img)
+    d.text((12, H // 2 - 24), "BioWatch", font=fnt_big, fill=CYAN)
+    d.text((12, H // 2 + 18), msg,         font=fnt_sm,  fill=GREY)
     display.image(img)
 
-# ── WebSocket listener ───────────────────────────────────────────────────────
+# ── WebSocket listener ────────────────────────────────────────────────────────
 async def listen():
     boot_screen("Connecting to server…")
-    url = "ws://127.0.0.1:8000/ws/dashboard"
-
     while True:
         try:
-            async with websockets.connect(url, ping_interval=20) as ws:
+            async with websockets.connect(SERVER_WS, ping_interval=20) as ws:
+                print(f"[display] Connected to {SERVER_WS}")
                 boot_screen("Connected — waiting for data")
-                print(f"[display] Connected to {url}")
-
                 async for raw in ws:
                     try:
                         msg = json.loads(raw)
                     except json.JSONDecodeError:
                         continue
 
-                    mtype = msg.get("type")
-
-                    if mtype == "reading":
-                        state["sensor"] = msg.get("sensorId", state["sensor"])
-                        state["temp"]   = float(msg["temp"])
-                        state["turb"]   = float(msg["turbidity"])
+                    t = msg.get("type")
+                    if t == "reading":
+                        state["temp"] = float(msg["temp"])
+                        state["turb"] = float(msg["turbidity"])
                         turb_buf.append(state["turb"])
                         render()
-
-                    elif mtype == "flag":
-                        ts = datetime.fromtimestamp(
-                                msg["ts"] / 1000).strftime("%H:%M:%S")
-                        state["flags"].append({
-                            "ts":   ts,
-                            "temp": float(msg["temp"]),
-                            "turb": float(msg["turbidity"]),
-                        })
+                    elif t == "status":
+                        state["tier"]   = msg.get("tier", "passed")
+                        state["count"]  = msg.get("flagsInWindow", 0)
+                        state["action"] = msg.get("action")
+                        if msg.get("steps"):
+                            state["steps"] = msg["steps"]
                         render()
 
-                    elif mtype == "status":
-                        tier = msg.get("tier", "normal")
-                        if tier != state["tier"]:
-                            state["tier"] = tier
-                            render()
-
         except Exception as e:
-            print(f"[display] WS error: {e} — reconnecting in 3 s")
-            boot_screen(f"Reconnecting… ({type(e).__name__})")
+            print(f"[display] {type(e).__name__}: {e} — reconnecting in 3s")
+            boot_screen(f"Reconnecting…")
             await asyncio.sleep(3)
 
 if __name__ == "__main__":

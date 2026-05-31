@@ -34,20 +34,71 @@ app.add_middleware(
 # ── Risk engine ───────────────────────────────────────────────────────────────
 risk_engine = AMRRiskEngine()
 
-# ── Gap 2 — Flag / tier thresholds: kept in sync with src/config.js ──────────
+# ── Flag / tier thresholds — kept in sync with src/config.js ─────────────────
 TURB_FLAG_NTU    = 4.5
 WARM_TEMP_C      = 26.0
 WINDOW_HOURS     = 6
 FLAG_DEBOUNCE_MS = 1200
-TIER_WATCH       = 1
-TIER_ELEVATED    = 4
-TIER_CRITICAL    = 6
+FLAG_WARN  = 3   # flags 1-2: passed  |  flag 3: warn
+FLAG_WARN2 = 4   # flag 4: warn lvl 2
+FLAG_PANIC = 5   # flag 5+: panic
+
+TIER_ACTION = {
+    "passed": None,
+    "warn":   "Drain clean cold water for 2 minutes.",
+    "warn2":  "Drain hot water immediately, then flush cold.",
+    "panic":  "PANIC: Immediate sanitisation required.",
+}
 
 def tier_from_count(n: int) -> str:
-    if n >= TIER_CRITICAL:  return "critical"
-    if n >= TIER_ELEVATED:  return "elevated"
-    if n >= TIER_WATCH:     return "watch"
-    return "normal"
+    if n >= FLAG_PANIC:  return "panic"
+    if n >= FLAG_WARN2:  return "warn2"
+    if n >= FLAG_WARN:   return "warn"
+    return "passed"
+
+# ── Panic log ─────────────────────────────────────────────────────────────────
+import json as _json
+_panic_log: List[dict] = []
+_PANIC_LOG_PATH = os.path.join(os.path.dirname(__file__), "panic_log.json")
+
+def _cleaning_steps(peak_temp: float, peak_turb: float) -> List[str]:
+    steps = ["Isolate the drain — stop use immediately."]
+    if peak_temp > 30:
+        steps.append("Shut off the hot-water source feeding this drain trap.")
+    steps.append("Flush with cold water (below 15°C) for 3 minutes.")
+    if peak_turb > 10:
+        steps.append("Physically scrub the drain interior and trap housing.")
+    steps += [
+        "Apply enzymatic drain cleaner — leave for 20 minutes.",
+        "Rinse thoroughly with cold water.",
+        "Leave drain dry for 4 hours minimum.",
+        "Re-run BioWatch and confirm Passed tier before resuming use.",
+    ]
+    return steps
+
+def _log_panic(device_id: str, historical: list) -> dict:
+    temps = [r["temp"] for r in historical] if historical else []
+    turbs = [r["turbidity"] for r in historical] if historical else []
+    peak_temp = round(max(temps), 2) if temps else 0.0
+    peak_turb = round(max(turbs), 2) if turbs else 0.0
+    avg_temp  = round(sum(temps) / len(temps), 2) if temps else 0.0
+    avg_turb  = round(sum(turbs) / len(turbs), 2) if turbs else 0.0
+    entry = {
+        "ts":         int(time.time() * 1000),
+        "device_id":  device_id,
+        "peak_temp":  peak_temp,
+        "peak_turb":  peak_turb,
+        "avg_temp":   avg_temp,
+        "avg_turb":   avg_turb,
+        "steps":      _cleaning_steps(peak_temp, peak_turb),
+    }
+    _panic_log.append(entry)
+    try:
+        with open(_PANIC_LOG_PATH, "w") as fh:
+            _json.dump(_panic_log, fh, indent=2)
+    except Exception as e:
+        logger.error(f"Panic log write failed: {e}")
+    return entry
 
 # ── Per-device sliding-window state ──────────────────────────────────────────
 _device_state: Dict[str, dict] = {}
@@ -196,34 +247,48 @@ async def process_reading(device_id: str, temp: float, turb: float, ts_ms: int):
         "turbidity": turb,
     })
 
-    # 2. flag detection — same rule + debounce as mockBackend.js
+    # 2. flag detection
     if (turb >= TURB_FLAG_NTU and temp >= WARM_TEMP_C and
             ts_ms - state["last_flag_at"] >= FLAG_DEBOUNCE_MS):
         state["last_flag_at"] = ts_ms
         state["flags"].append({"ts": ts_ms, "temp": temp, "turbidity": turb})
+        flag_number = len(state["flags"])
         await dashboard_manager.broadcast({
-            "type":      "flag",
-            "ts":        ts_ms,
-            "sensorId":  device_id,
-            "temp":      temp,
-            "turbidity": turb,
+            "type":       "flag",
+            "ts":         ts_ms,
+            "sensorId":   device_id,
+            "temp":       temp,
+            "turbidity":  turb,
+            "flagNumber": flag_number,
+            "flagTier":   tier_from_count(flag_number),
         })
 
     # 3. sliding-window tier (prune expired flags, then escalate)
     cutoff = ts_ms - WINDOW_HOURS * 3_600_000
     state["flags"] = [f for f in state["flags"] if f["ts"] >= cutoff]
-    count = len(state["flags"])
-    tier  = tier_from_count(count)
+    count    = len(state["flags"])
+    tier     = tier_from_count(count)
+    old_tier = state["last_tier"]
 
-    if tier != state["last_tier"] or count != state["last_count"]:
+    if tier != old_tier or count != state["last_count"]:
         state["last_tier"]  = tier
         state["last_count"] = count
+
+        steps = None
+        if tier == "panic" and old_tier != "panic":
+            historical = manager.data_buffer.get(device_id, [])[-100:]
+            entry  = _log_panic(device_id, historical)
+            steps  = entry["steps"]
+            logger.warning(f"PANIC logged for {device_id} — peak {entry['peak_temp']}°C / {entry['peak_turb']} NTU")
+
         await dashboard_manager.broadcast({
-            "type":         "status",
-            "sensorId":     device_id,
-            "tier":         tier,
+            "type":          "status",
+            "sensorId":      device_id,
+            "tier":          tier,
             "flagsInWindow": count,
-            "windowHours":  WINDOW_HOURS,
+            "windowHours":   WINDOW_HOURS,
+            "action":        TIER_ACTION.get(tier),
+            "steps":         steps,
         })
 
 # TODO: confirm function
@@ -381,6 +446,10 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.get("/api/panic-log")
+async def get_panic_log():
+    return {"entries": _panic_log}
 
 @app.get("/api/health")
 async def health_check():
