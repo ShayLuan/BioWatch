@@ -117,15 +117,42 @@ export const CSS = `
 .demo-btn:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(31,143,209,.5);}
 .demo-btn:active{transform:translateY(0);}
 
-.log-head,.log-row{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:8px;padding:8px 12px;font-size:12.5px;}
+.log-head,.log-row{display:grid;grid-template-columns:12px 18px 1.1fr 1fr 1fr;gap:8px;padding:8px 12px;font-size:12.5px;align-items:center;}
 .log-head{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);font-weight:700;}
-.log{max-height:190px;overflow-y:auto;border-radius:12px;}
-.log-row{border-radius:10px;background:rgba(255,255,255,.4);margin-bottom:5px;align-items:center;}
+.log{max-height:220px;overflow-y:auto;border-radius:12px;}
+.log-row{border-radius:10px;background:rgba(255,255,255,.4);margin-bottom:5px;}
 .log-row:first-child{animation:flash 1.2s ease;}
 @keyframes flash{0%{background:rgba(242,121,15,.45)}100%{background:rgba(255,255,255,.4)}}
 .log-row b{font-family:'Quicksand';font-weight:700;}
 .log-empty{padding:18px;text-align:center;color:var(--ink-soft);font-size:12.5px;}
 .mono{font-family:'Quicksand';font-weight:600;}
+.log-flag-dot{width:10px;height:10px;border-radius:50%;flex:none;border:1.5px solid rgba(0,0,0,.1);}
+.log-flag-num{font-family:'Quicksand';font-weight:700;font-size:11px;color:var(--ink-soft);}
+
+/* ── Flag dots (topbar) ─────────────────────── */
+.flag-dots{display:flex;align-items:center;gap:5px;margin:0 4px;}
+.flag-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.1);transition:.3s;}
+.flag-dot.lit{border-color:transparent;box-shadow:0 0 6px currentColor;}
+
+/* ── Action panel ───────────────────────────── */
+.action-panel{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:16px;}
+.action-panel.tier-warn{border-left:5px solid #e8a800;background:rgba(232,168,0,.1);}
+.action-panel.tier-warn2{border-left:5px solid #f2790f;background:rgba(242,121,15,.1);}
+.action-panel.tier-panic{border-left:5px solid #e23b3b;background:rgba(226,59,59,.1);}
+.action-icon{font-size:24px;line-height:1;flex:none;margin-top:1px;}
+.action-title{font-family:'Quicksand';font-weight:700;font-size:15px;line-height:1.3;}
+.action-sub{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+.panic-steps{margin:8px 0 0;padding-left:18px;}
+.panic-steps li{font-size:12.5px;line-height:1.7;color:var(--ink);}
+
+/* ── Panic log ──────────────────────────────── */
+.panic-log-head{display:grid;grid-template-columns:1.4fr .7fr .7fr .7fr;gap:8px;
+  padding:8px 12px;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--ink-soft);font-weight:700;}
+.panic-log-row{display:grid;grid-template-columns:1.4fr .7fr .7fr .7fr;gap:8px;padding:9px 12px;
+  border-radius:10px;background:rgba(226,59,59,.08);margin-bottom:5px;font-size:12.5px;align-items:center;}
+.panic-log-row b{font-family:'Quicksand';font-weight:700;}
 
 @media(max-width:880px){
   .layout{grid-template-columns:1fr;}

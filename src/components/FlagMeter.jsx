@@ -3,11 +3,11 @@ import { CONFIG, TIERS, tierFromCount, clamp } from "../config";
 
 export default function FlagMeter({ count }) {
   const marks = [
-    { n: CONFIG.TIER_WATCH,    k: "watch" },
-    { n: CONFIG.TIER_ELEVATED, k: "elevated" },
-    { n: CONFIG.TIER_CRITICAL, k: "critical" },
+    { n: CONFIG.FLAG_WARN,  k: "warn" },
+    { n: CONFIG.FLAG_WARN2, k: "warn2" },
+    { n: CONFIG.FLAG_PANIC, k: "panic" },
   ];
-  const max = CONFIG.TIER_CRITICAL + 2;
+  const max = CONFIG.FLAG_PANIC + 2;
   return (
     <div className="meter">
       <div className="meter-track">
@@ -17,9 +17,10 @@ export default function FlagMeter({ count }) {
         ))}
       </div>
       <div className="meter-legend">
-        <span>0</span><span style={{ color: TIERS.watch.color }}>watch {CONFIG.TIER_WATCH}</span>
-        <span style={{ color: TIERS.elevated.color }}>elevated {CONFIG.TIER_ELEVATED}</span>
-        <span style={{ color: TIERS.critical.color }}>critical {CONFIG.TIER_CRITICAL}+</span>
+        <span>0</span>
+        <span style={{ color: TIERS.warn.color }}>warn {CONFIG.FLAG_WARN}</span>
+        <span style={{ color: TIERS.warn2.color }}>warn2 {CONFIG.FLAG_WARN2}</span>
+        <span style={{ color: TIERS.panic.color }}>panic {CONFIG.FLAG_PANIC}+</span>
       </div>
     </div>
   );
