@@ -76,7 +76,7 @@ def predict(payload: SensorFeatures) -> dict:
     # Fill derived fields that the caller left as None
     temp = payload.Temperature_C
     turb = payload.Turbidity_FNU
-    feat = payload.dict()
+    feat = payload.model_dump()
     feat.setdefault("Turbidity_Max_48h",       turb)
     feat.setdefault("Temp_Rolling_Mean_48h",   temp)
     feat.setdefault("Temp_Turbidity_Interaction", temp * turb)
