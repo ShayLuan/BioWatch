@@ -38,10 +38,10 @@ risk_engine = AMRRiskEngine()
 TURB_FLAG_NTU    = 4.5
 WARM_TEMP_C      = 26.0
 WINDOW_HOURS     = 6
-FLAG_DEBOUNCE_MS = 1200
-FLAG_WARN  = 3   # flags 1-2: passed  |  flag 3: warn
-FLAG_WARN2 = 4   # flag 4: warn lvl 2
-FLAG_PANIC = 5   # flag 5+: panic
+FLAG_DEBOUNCE_MS = 30_000   # 30 s minimum between flags — primary gate at high send rate
+FLAG_WARN  = 5              # ~2.5 min sustained contamination
+FLAG_WARN2 = 10             # ~5 min
+FLAG_PANIC = 18             # ~9 min of repeated contamination in 6 h window
 
 TIER_ACTION = {
     "passed": None,

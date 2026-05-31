@@ -33,7 +33,7 @@ static const char* DEVICE_ID  = "sink_01";
 #define TURBIDITY_PIN  34   // Turbidity sensor analog out
 
 // ── Timing ──────────────────────────────────────────────────────────────────
-static const unsigned long SEND_INTERVAL_MS = 3000;
+static const unsigned long SEND_INTERVAL_MS = 200;     // 5 Hz
 static const unsigned long WIFI_RETRY_MS    = 5000;
 
 // ── Globals ──────────────────────────────────────────────────────────────────
