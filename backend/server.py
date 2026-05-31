@@ -186,34 +186,44 @@ _sim_state: Dict[str, dict] = {
     for s in _virtual_sensors
 }
 
+_DATA_BUFFER_CAP = 500   # ~12 min of history at 1.5 s/tick — enough for compute_features
+
 async def simulation_loop():
     """Emit mock readings for every sensor that has no real device connected."""
     while True:
-        await asyncio.sleep(EMIT_INTERVAL)
-        if not dashboard_manager.connections:
-            continue
-        now_ms = int(time.time() * 1000)
-        for s in _virtual_sensors:
-            sid = s["id"]
-            if sid in manager.active_connections:
-                continue   # real device is live — skip virtual
-            ss = _sim_state[sid]
-            temp = ss["baseTemp"] + (random.random() - 0.5) * 0.6
-            if ss["inject"] > 0:
-                temp += 1.8
-            temp = max(15.0, min(40.0, temp))
-            t = ss["baseTurb"] + random.random() * 0.7
-            if ss["inject"] > 0:
-                t += 6 + random.random() * 3
-                ss["inject"] -= 1
-            elif random.random() < 0.012:
-                t += 3 + random.random() * 2
-            turb = max(0.0, t)
-            # Keep a buffer for virtual sensors so compute_features has history
-            if sid not in manager.data_buffer:
-                manager.data_buffer[sid] = []
-            manager.data_buffer[sid].append({"ts": now_ms, "temp": temp, "turbidity": turb})
-            await process_reading(sid, temp, turb, now_ms)
+        try:
+            await asyncio.sleep(EMIT_INTERVAL)
+            if not dashboard_manager.connections:
+                continue
+            now_ms = int(time.time() * 1000)
+            for s in _virtual_sensors:
+                try:
+                    sid = s["id"]
+                    if sid in manager.active_connections:
+                        continue   # real device is live — skip virtual
+                    ss = _sim_state[sid]
+                    temp = ss["baseTemp"] + (random.random() - 0.5) * 0.6
+                    if ss["inject"] > 0:
+                        temp += 1.8
+                    temp = max(15.0, min(40.0, temp))
+                    t = ss["baseTurb"] + random.random() * 0.7
+                    if ss["inject"] > 0:
+                        t += 6 + random.random() * 3
+                        ss["inject"] -= 1
+                    elif random.random() < 0.012:
+                        t += 3 + random.random() * 2
+                    turb = max(0.0, t)
+                    if sid not in manager.data_buffer:
+                        manager.data_buffer[sid] = []
+                    buf = manager.data_buffer[sid]
+                    buf.append({"ts": now_ms, "temp": temp, "turbidity": turb})
+                    if len(buf) > _DATA_BUFFER_CAP:
+                        manager.data_buffer[sid] = buf[-_DATA_BUFFER_CAP:]
+                    await process_reading(sid, temp, turb, now_ms)
+                except Exception as e:
+                    logger.error(f"simulation_loop sensor {s['id']} error: {e}")
+        except Exception as e:
+            logger.error(f"simulation_loop tick error: {e}")
 
 @app.on_event("startup")
 async def startup():

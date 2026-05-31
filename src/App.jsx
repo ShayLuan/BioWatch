@@ -145,12 +145,24 @@ export default function WaterSentinelDashboard() {
     });
   }
 
+  const wsRef        = useRef(null);
+  const reconnectRef = useRef(null);
+
   useEffect(() => {
     const wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const ws = new WebSocket(`${wsProto}//${window.location.host}/ws/dashboard`);
-    ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
-    ws.onerror   = (e) => console.error("[BioWatch] WS error", e);
-    backend.current = { inject: (id) => ws.send(JSON.stringify({ cmd: "inject", sensorId: id })) };
+    const wsUrl   = `${wsProto}//${window.location.host}/ws/dashboard`;
+
+    function connect() {
+      const ws = new WebSocket(wsUrl);
+      ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
+      ws.onerror   = () => {};
+      ws.onclose   = () => {
+        reconnectRef.current = setTimeout(connect, 3000);
+      };
+      wsRef.current = ws;
+      backend.current = { inject: (id) => ws.send(JSON.stringify({ cmd: "inject", sensorId: id })) };
+    }
+    connect();
 
     const clock_t = setInterval(() => setClock(Date.now()), 1000);
     const panic_t = setInterval(() => {
@@ -160,7 +172,12 @@ export default function WaterSentinelDashboard() {
         .catch(() => {});
     }, 10_000);
 
-    return () => { ws.close(); clearInterval(clock_t); clearInterval(panic_t); };
+    return () => {
+      clearTimeout(reconnectRef.current);
+      wsRef.current?.close();
+      clearInterval(clock_t);
+      clearInterval(panic_t);
+    };
   }, []);
 
   const sel      = sensors[selected] ?? blankSensor(selected);
