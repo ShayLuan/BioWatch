@@ -125,6 +125,7 @@ _virtual_sensors = [
     {"id": "S-03", "baseTemp": 28.4, "baseTurb": 2.0},
     {"id": "S-04", "baseTemp": 29.1, "baseTurb": 2.4},
 ]
+
 _sim_state: Dict[str, dict] = {
     s["id"]: {"baseTemp": s["baseTemp"], "baseTurb": s["baseTurb"], "inject": 0}
     for s in _virtual_sensors
@@ -348,13 +349,9 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             normalised = {"ts": ts_ms, "temp": temp, "turbidity": turb}
             manager.data_buffer[device_id].append(normalised)
 
-            # Compute derived features and call the ML service (port 8001)
-            features   = compute_features(device_id, temp, turb, ts_ms)
-            ml_result  = await send_to_ml_endpoint(features)
-            # If the ML service is not running, fall back to local AMRRiskEngine
-            if "band" not in ml_result:
-                ml_result = risk_engine.calculate_realtime_risk(temp, turb)
-                ml_result["source"] = "AMRRiskEngine (fallback)"
+            # Local AMR risk engine (ml_service on port 8001 not required)
+            historical = manager.data_buffer[device_id][-100:]
+            ml_result  = risk_engine.calculate_realtime_risk(temp, turb, historical_buffer=historical)
 
             # Broadcast the three UI message types to all dashboard clients
             await process_reading(device_id, temp, turb, ts_ms)
