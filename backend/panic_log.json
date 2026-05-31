@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "ts": 1780240094528,
+    "device_id": "S-03",
+    "peak_temp": 28.7,
+    "peak_turb": 6.97,
+    "avg_temp": 28.43,
+    "avg_turb": 2.44,
+    "steps": [
+      "Isolate the drain \u2014 stop use immediately.",
+      "Flush with cold water (below 15\u00b0C) for 3 minutes.",
+      "Apply enzymatic drain cleaner \u2014 leave for 20 minutes.",
+      "Rinse thoroughly with cold water.",
+      "Leave drain dry for 4 hours minimum.",
+      "Re-run BioWatch and confirm Passed tier before resuming use."
+    ]
+  },
+  {
+    "ts": 1780240319483,
+    "device_id": "S-01",
+    "peak_temp": 27.5,
+    "peak_turb": 5.89,
+    "avg_temp": 27.18,
+    "avg_turb": 1.5,
+    "steps": [
+      "Isolate the drain \u2014 stop use immediately.",
+      "Flush with cold water (below 15\u00b0C) for 3 minutes.",
+      "Apply enzymatic drain cleaner \u2014 leave for 20 minutes.",
+      "Rinse thoroughly with cold water.",
+      "Leave drain dry for 4 hours minimum.",
+      "Re-run BioWatch and confirm Passed tier before resuming use."
+    ]
+  },
+  {
+    "ts": 1780240346410,
+    "device_id": "S-04",
+    "peak_temp": 29.4,
+    "peak_turb": 6.63,
+    "avg_temp": 29.11,
+    "avg_turb": 2.81,
+    "steps": [
+      "Isolate the drain \u2014 stop use immediately.",
+      "Flush with cold water (below 15\u00b0C) for 3 minutes.",
+      "Apply enzymatic drain cleaner \u2014 leave for 20 minutes.",
+      "Rinse thoroughly with cold water.",
+      "Leave drain dry for 4 hours minimum.",
+      "Re-run BioWatch and confirm Passed tier before resuming use."
+    ]
+  }
+]

@@ -14,7 +14,7 @@ function buildReel(oldCh, newCh) {
   return Array.from({ length: hi - lo + 1 }, (_, i) => String(lo + i));
 }
 
-const H = 1.15; // em — must match .anim-char-wrap height in CSS
+const H = 1; // em — must match .anim-char-wrap height in CSS
 
 function AnimatedChar({ ch, version }) {
   const [anim, setAnim]  = useState(null);
@@ -79,9 +79,11 @@ function AnimatedValue({ value }) {
 
   return (
     <>
-      {str.split("").map((ch, i) => (
-        <AnimatedChar key={i} ch={ch} version={versionsRef.current[i] ?? 0} />
-      ))}
+      {str.split("").map((ch, i) =>
+        /\d/.test(ch)
+          ? <AnimatedChar key={i} ch={ch} version={versionsRef.current[i] ?? 0} />
+          : <span key={i}>{ch}</span>   // decimal point, minus — no clip wrapper
+      )}
     </>
   );
 }

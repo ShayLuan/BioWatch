@@ -167,7 +167,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 # ── Virtual sensor simulation (mirrors SEED + step() from mockBackend.js) ─────
-EMIT_INTERVAL = 1.5   # seconds between ticks
+EMIT_INTERVAL = .5   # seconds between ticks
 INJECT_TICKS  = 2     # how many ticks a contamination pulse lasts
 
 _virtual_sensors = [
@@ -214,7 +214,7 @@ async def simulation_loop():
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(simulation_loop())
-
+    
 ML_ENDPOINT = "http://localhost:8001/predict"
 
 async def send_to_ml_endpoint(sensor_data: dict) -> dict:

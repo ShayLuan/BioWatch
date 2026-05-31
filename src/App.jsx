@@ -115,8 +115,13 @@ export default function WaterSentinelDashboard() {
     setSensors((prev) => {
       const s = prev[sensorId] ?? blankSensor(sensorId);
       if (msg.type === "reading") {
-        const newTurbHist = [...s.turbHist, { t: msg.ts, v: msg.turbidity }].slice(-CONFIG.HISTORY);
-        const newTempHist = [...s.tempHist, { t: msg.ts, v: msg.temp      }].slice(-CONFIG.HISTORY);
+        const rawTurb = msg.turbidity;
+        const rawTemp = msg.temp;
+        // Reject obviously corrupt readings before they enter the history
+        if (!Number.isFinite(rawTurb) || rawTurb < 0   || rawTurb > 1000) return prev;
+        if (!Number.isFinite(rawTemp) || rawTemp < -50  || rawTemp > 100 ) return prev;
+        const newTurbHist = [...s.turbHist, { t: msg.ts, v: rawTurb }].slice(-CONFIG.HISTORY);
+        const newTempHist = [...s.tempHist, { t: msg.ts, v: rawTemp }].slice(-CONFIG.HISTORY);
         const avg = (arr) => arr.reduce((a, e) => a + e.v, 0) / arr.length;
         const avgTurb = Math.floor(avg(newTurbHist.slice(-4)));
         const avgTemp = Math.floor(avg(newTempHist.slice(-4)));

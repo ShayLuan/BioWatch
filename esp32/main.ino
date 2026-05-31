@@ -5,7 +5,7 @@
  * ──────
  * DS18B20 (temp)    DATA → GPIO 4  (breakout board has pull-up built in)
  * Turbidity sensor  AOUT → GPIO 34 (ADC1_CH6, input-only pin)
- *                   VCC  → 3.3 V
+ *                   VCC  → 5 V   (sensor requires 5 V; ESP32 ADC clips at 3.3 V)
  *
  * Required libraries (Arduino Library Manager)
  * ─────────────────────────────────────────────
@@ -44,12 +44,22 @@ WebSocketsClient  wsClient;
 static bool          wsConnected = false;
 static unsigned long lastSend    = 0;
 
-// ── Turbidity ADC → NTU ──────────────────────────────────────────────────────
-// SEN0189 @ 3.3 V: higher voltage = cleaner water (inverse).
-// ~3.0 V → 0 NTU  |  ~0.0 V → 100 NTU  — calibrate for your batch.
-float adcToNtu(int raw12bit) {
-    float v = raw12bit * 3.3f / 4095.0f;
-    return max(0.0f, (3.0f - v) / 3.0f * 100.0f);
+// ── Turbidity: average 10 samples then convert to NTU ───────────────────────
+// Sensor VCC = 5 V. Formula: DFRobot SEN0189 / TS-300B wiki.
+// ESP32 ADC caps at 3.3 V, so we map raw directly to the 5 V scale.
+float readTurbidityNTU() {
+    long sum = 0;
+    for (int i = 0; i < 10; i++) {
+        sum += analogRead(TURBIDITY_PIN);
+        delay(5);
+    }
+    float v = (sum / 10.0f) * (5.0f / 4095.0f);  // raw → 5 V scale
+
+    if (v >= 4.2f) return 0.0f;     // clean water (sensor near max output)
+    if (v <= 2.5f) return 3000.0f;  // beyond formula range
+
+    float ntu = -1120.4f * v * v + 5742.3f * v - 4352.9f;
+    return constrain(ntu, 0.0f, 3000.0f);
 }
 
 // ── WebSocket events ─────────────────────────────────────────────────────────
@@ -88,6 +98,7 @@ void wsEvent(WStype_t type, uint8_t* payload, size_t length) {
 void setup() {
     Serial.begin(115200);
     analogReadResolution(12);
+    analogSetPinAttenuation(TURBIDITY_PIN, ADC_11db); // extend ADC range to 0–3.3 V
     tempSensor.begin();
 
     int found = tempSensor.getDeviceCount();
@@ -134,8 +145,7 @@ void loop() {
         return;
     }
 
-    int   rawAdc = analogRead(TURBIDITY_PIN);
-    float ntu    = adcToNtu(rawAdc);
+    float ntu = readTurbidityNTU();
 
     JsonDocument doc;
     doc["device_id"]     = DEVICE_ID;
@@ -147,5 +157,5 @@ void loop() {
     serializeJson(doc, buf);
     wsClient.sendTXT(buf);
 
-    Serial.printf("[SEND] temp=%.2f°C  turb=%.2f NTU  raw=%d\n", tempC, ntu, rawAdc);
+    Serial.printf("[SEND] temp=%.2f°C  turb=%.2f NTU\n", tempC, ntu);
 }
