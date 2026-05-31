@@ -23,15 +23,15 @@ BioWatch is a physical sensor node that sits in a sink's P-trap and continuously
 ## Architecture
 
 ```
-ESP32-S3 Node              Raspberry Pi Backend              Dashboard
-┌──────────────┐           ┌─────────────────────┐          ┌──────────────┐
-│ DS18B20 temp │──┐        │  FastAPI server      │          │ React + Vite │
+ESP32-S3 Node                Raspberry Pi Backend              Dashboard
+┌──────────────┐           ┌──────────────────────┐         ┌──────────────┐
+│ DS18B20 temp │──┐        │  FastAPI server      │         │ React + Vite │
 │ Turbidity    │──┤ WiFi   │  ┌─────────────────┐ │  WS     │ Live gauges  │
 │ sensor       │──┼──────► │  │ ML Risk Engine  │ │ ◄─────► │ Sparklines   │
 │              │  │  WS    │  │ (Decision Tree) │ │         │ Flag log     │
 └──────────────┘  │        │  └─────────────────┘ │         │ Tier alerts  │
-                  │        │  SQLite  │  Panic log │         └──────────────┘
-                  │        └──────────┘────────────┘
+                  │        └──────────────────────┘         └──────────────┘
+                  │                    │
                   │                    │
                   │        ┌───────────▼──────────┐
                   └──────► │ ILI9341 240×320      │
