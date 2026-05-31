@@ -243,7 +243,7 @@ export default function WaterSentinelDashboard() {
               <FlagMeter count={sel.flagsInWindow} />
               <p className="panel-note">
                 Flag fires when turbidity ≥ {CONFIG.TURB_FLAG_NTU} NTU <b>and</b> temp ≥ {CONFIG.WARM_TEMP_C} °C.
-                Tiers: flags 1–2 passed · 3 warn · 4 warn2 · 5+ panic.
+                Tiers: 0–{CONFIG.FLAG_WARN - 1} passed · {CONFIG.FLAG_WARN}–{CONFIG.FLAG_WARN2 - 1} warn · {CONFIG.FLAG_WARN2}–{CONFIG.FLAG_PANIC - 1} warn2 · {CONFIG.FLAG_PANIC}+ panic.
               </p>
             </div>
 
