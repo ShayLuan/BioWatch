@@ -14,6 +14,7 @@ print("--- Running Phase 2: LASSO Regularization ---")
 
 # 2. Fit Multinomial LASSO Framework
 lasso = LogisticRegression(
+    penalty='elasticnet',
     solver='saga',
     l1_ratio=1,
     C=0.5,
