@@ -36,7 +36,7 @@ static const char* DEVICE_ID  = "sink_01";
 #define TURBIDITY_PIN  34    // Analog turbidity output
 
 // ── Timing ─────────────────────────────────────────────────────────────────
-static const unsigned long SEND_INTERVAL_MS = 1000;   // 1 Hz
+static const unsigned long SEND_INTERVAL_MS = 3000;   // every 3 s
 static const unsigned long WIFI_RETRY_MS    = 5000;
 
 // ── Globals ────────────────────────────────────────────────────────────────
@@ -69,12 +69,12 @@ void wsEvent(WStype_t type, uint8_t* payload, size_t length) {
 
         case WStype_DISCONNECTED:
             wsConnected = false;
-            Serial.println("[WS] Disconnected — auto-retry enabled");
+            Serial.printf("[WS] Disconnected (code %u)\n", (unsigned)length);
             break;
 
         case WStype_TEXT: {
             // Server sends back an ACK with the AMR risk score.
-            StaticJsonDocument<256> ack;
+            JsonDocument ack;
             if (deserializeJson(ack, payload) == DeserializationError::Ok) {
                 const char* band  = ack["risk"]["band"]       | "?";
                 int         score = ack["risk"]["risk_score"]  | -1;
@@ -82,6 +82,10 @@ void wsEvent(WStype_t type, uint8_t* payload, size_t length) {
             }
             break;
         }
+
+        case WStype_ERROR:
+            Serial.printf("[WS] Error: %s\n", payload ? (char*)payload : "unknown");
+            break;
 
         default:
             break;
@@ -109,6 +113,7 @@ void setup() {
     wsClient.begin(PI_HOST, PI_PORT, path.c_str());
     wsClient.onEvent(wsEvent);
     wsClient.setReconnectInterval(3000);
+    wsClient.enableHeartbeat(15000, 3000, 2);  // ping every 15 s, timeout 3 s, 2 retries
 }
 
 // ── loop ────────────────────────────────────────────────────────────────────
@@ -142,11 +147,11 @@ void loop() {
     float ntu    = adcToNtu(rawAdc);
 
     // Build JSON payload matching the server contract
-    StaticJsonDocument<128> doc;
+    JsonDocument doc;
     doc["device_id"]     = DEVICE_ID;
     doc["ts"]            = millis();    // ms since boot; server accepts any epoch ms
-    doc["temp_c"]        = serialized(String(tempC, 2));
-    doc["turbidity_ntu"] = serialized(String(ntu,   2));
+    doc["temp_c"]        = tempC;
+    doc["turbidity_ntu"] = ntu;
 
     char buf[128];
     serializeJson(doc, buf);
