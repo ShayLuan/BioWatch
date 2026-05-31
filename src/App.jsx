@@ -115,12 +115,17 @@ export default function WaterSentinelDashboard() {
     setSensors((prev) => {
       const s = prev[sensorId] ?? blankSensor(sensorId);
       if (msg.type === "reading") {
+        const newTurbHist = [...s.turbHist, { t: msg.ts, v: msg.turbidity }].slice(-CONFIG.HISTORY);
+        const newTempHist = [...s.tempHist, { t: msg.ts, v: msg.temp      }].slice(-CONFIG.HISTORY);
+        const avg = (arr) => arr.reduce((a, e) => a + e.v, 0) / arr.length;
+        const avgTurb = Math.floor(avg(newTurbHist.slice(-4)));
+        const avgTemp = Math.floor(avg(newTempHist.slice(-4)));
         return { ...prev, [sensorId]: {
           ...s,
-          temp:     msg.temp,
-          turbidity: msg.turbidity,
-          tempHist: [...s.tempHist, { t: msg.ts, v: +msg.temp.toFixed(2) }].slice(-CONFIG.HISTORY),
-          turbHist: [...s.turbHist, { t: msg.ts, v: +msg.turbidity.toFixed(2) }].slice(-CONFIG.HISTORY),
+          temp:      avgTemp,
+          turbidity: avgTurb,
+          tempHist:  newTempHist,
+          turbHist:  newTurbHist,
         }};
       }
       if (msg.type === "flag") {
@@ -206,7 +211,7 @@ export default function WaterSentinelDashboard() {
                   <button key={s.id} className={"rail-item" + (selected === s.id ? " active" : "")} onClick={() => setSelected(s.id)}>
                     <span className="rail-dot" style={{ background: t.color, boxShadow: `0 0 8px ${t.glow}` }} />
                     <span className="rail-item-label">{s.label}</span>
-                    <span className="rail-item-turb">{s.turbidity.toFixed(1)}<small> NTU</small></span>
+                    <span className="rail-item-turb">{s.turbidity}<small> NTU</small></span>
                   </button>
                 );
               })}
@@ -231,9 +236,9 @@ export default function WaterSentinelDashboard() {
           )}
 
           <section className="grid2">
-            <StatTile icon={Thermometer} name="Temperature" value={sel.temp.toFixed(1)} unit="°C"
+            <StatTile icon={Thermometer} name="Temperature" value={String(sel.temp)} unit="°C"
               hot={tempHot} data={sel.tempHist} color="#ff7a59" />
-            <StatTile icon={Droplets} name="Turbidity" value={sel.turbidity.toFixed(1)} unit=" NTU"
+            <StatTile icon={Droplets} name="Turbidity" value={String(sel.turbidity)} unit=" NTU"
               hot={turbHot} data={sel.turbHist} color="#1ba9d6" />
           </section>
 

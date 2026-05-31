@@ -1,22 +1,86 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Sparkline from "./Sparkline";
 
-// Each character slides down from above with staggered cubic-bezier timing.
-// animKey increments on every value change so React remounts the spans,
-// re-triggering the CSS animation even when the same digit reappears.
+// Builds a reel of every digit between old and new (inclusive, ascending).
+// from/to translateY values naturally encode direction:
+//   going up  (3→7): reel=[3..7], from=0,   to=-4em  → column scrolls up
+//   going down(7→3): reel=[3..7], from=-4em, to=0     → column scrolls down
+function buildReel(oldCh, newCh) {
+  const o = parseInt(oldCh, 10);
+  const n = parseInt(newCh,  10);
+  if (isNaN(o) || isNaN(n) || o === n) return null;
+  const lo = Math.min(o, n);
+  const hi = Math.max(o, n);
+  return Array.from({ length: hi - lo + 1 }, (_, i) => String(lo + i));
+}
+
+const H = 1.15; // em — must match .anim-char-wrap height in CSS
+
+function AnimatedChar({ ch, version }) {
+  const [anim, setAnim]  = useState(null);
+  const prevRef  = useRef({ ch, version });
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    const { ch: prevCh, version: prevVer } = prevRef.current;
+    if (prevVer === version) return;
+    prevRef.current = { ch, version };
+    clearTimeout(timerRef.current);
+
+    const reel = buildReel(prevCh, ch);
+    if (!reel) { setAnim(null); return; }
+
+    const oldIdx = reel.indexOf(prevCh);
+    const newIdx = reel.indexOf(ch);
+    const dur    = Math.max(200, 700 - reel.length * 55); // fewer steps → slower
+
+    setAnim({
+      reel,
+      from: `${-oldIdx * H}em`,
+      to:   `${-newIdx * H}em`,
+      dur:  `${dur}ms`,
+    });
+    timerRef.current = setTimeout(() => setAnim(null), dur + 80);
+    return () => clearTimeout(timerRef.current);
+  }, [version, ch]);
+
+  if (!anim) {
+    return <span className="anim-char-wrap"><span className="anim-reel-digit">{ch}</span></span>;
+  }
+
+  return (
+    <span className="anim-char-wrap">
+      <span
+        className="anim-reel"
+        style={{ "--rf": anim.from, "--rt": anim.to, "--rd": anim.dur }}
+      >
+        {anim.reel.map((d, i) => (
+          <span key={i} className="anim-reel-digit">{d}</span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
 function AnimatedValue({ value }) {
-  const [animKey, setAnimKey] = useState(0);
-  useEffect(() => { setAnimKey((k) => k + 1); }, [value]);
+  const str         = String(value);
+  const prevRef     = useRef(str);
+  const versionsRef = useRef(str.split("").map(() => 0));
+
+  const prev = prevRef.current;
+  if (prev !== str) {
+    const old = versionsRef.current;
+    versionsRef.current = str.split("").map((ch, i) => {
+      const changed = str.length !== prev.length || i >= prev.length || prev[i] !== ch;
+      return changed ? (old[i] ?? 0) + 1 : (old[i] ?? 0);
+    });
+    prevRef.current = str;
+  }
+
   return (
     <>
-      {String(value).split("").map((ch, i) => (
-        <span
-          key={`${animKey}-${i}`}
-          className="anim-char"
-          style={{ animationDelay: `${i * 28}ms` }}
-        >
-          {ch}
-        </span>
+      {str.split("").map((ch, i) => (
+        <AnimatedChar key={i} ch={ch} version={versionsRef.current[i] ?? 0} />
       ))}
     </>
   );

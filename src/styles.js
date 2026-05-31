@@ -154,14 +154,22 @@ export const CSS = `
   border-radius:10px;background:rgba(226,59,59,.08);margin-bottom:5px;font-size:12.5px;align-items:center;}
 .panic-log-row b{font-family:'Quicksand';font-weight:700;}
 
-/* ── Animated value characters ──────────────────── */
-.anim-char{
-  display:inline-block;
-  animation:charDown 0.38s cubic-bezier(0.33,1,0.68,1) both;
+/* ── Digit reel (odometer) ───────────────────────── */
+.anim-char-wrap{
+  position:relative; display:inline-block;
+  overflow:hidden; height:1.15em; vertical-align:bottom;
 }
-@keyframes charDown{
-  from{transform:translateY(-60%);opacity:0;}
-  to  {transform:translateY(0);   opacity:1;}
+.anim-reel{
+  display:flex; flex-direction:column; will-change:transform;
+  animation:reelScroll var(--rd,0.4s) cubic-bezier(0.45,0,0.15,1) both;
+}
+.anim-reel-digit{
+  height:1.15em; display:flex;
+  align-items:center; flex-shrink:0;
+}
+@keyframes reelScroll{
+  from{ transform:translateY(var(--rf,0)); }
+  to  { transform:translateY(var(--rt,0)); }
 }
 
 @media(max-width:880px){
