@@ -154,6 +154,16 @@ export const CSS = `
   border-radius:10px;background:rgba(226,59,59,.08);margin-bottom:5px;font-size:12.5px;align-items:center;}
 .panic-log-row b{font-family:'Quicksand';font-weight:700;}
 
+/* ── Animated value characters ──────────────────── */
+.anim-char{
+  display:inline-block;
+  animation:charDown 0.38s cubic-bezier(0.33,1,0.68,1) both;
+}
+@keyframes charDown{
+  from{transform:translateY(-60%);opacity:0;}
+  to  {transform:translateY(0);   opacity:1;}
+}
+
 @media(max-width:880px){
   .layout{grid-template-columns:1fr;}
   .hero{grid-template-columns:1fr;gap:14px;justify-items:start;}
