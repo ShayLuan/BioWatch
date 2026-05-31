@@ -84,11 +84,11 @@ BioWatch/
 
 | Component | Role | ~Cost |
 |-----------|------|-------|
-| ESP32-S3 | Sensor node MCU, WiFi streaming | ~$8 |
-| SEN0189 turbidity sensor | Analog turbidity (ADC → NTU) | ~$8 |
-| DS18B20 (waterproof) | Temperature probe | ~$2 |
+| ESP32-S3 | Sensor node MCU, WiFi streaming | ~$12 |
+| SEN0189 turbidity sensor | Analog turbidity (ADC → NTU) | ~$21 |
+| DS18B20 (waterproof) | Temperature probe | ~$18 |
 | Raspberry Pi Zero W | Backend server + on-device display | ~$15 |
-| ILI9341 320×240 TFT | Local sink-side status screen | ~$6 |
+| ILI9341 320×240 TFT | Local sink-side status screen | ~$4 |
 
 **Total per sink node: ~$25**
 
